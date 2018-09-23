@@ -5,7 +5,9 @@
         Achieve Streams information by scapy.
 
         TCP and UDP streams in this source are based on five tuple <srcIP:srcPort<->dstIP:dstPort-protocol>, ignore the direction.
-        srcIP->dstIP and dstIP->srcIP are different flow, but they belongs to the same stream.
+        srcIP->dstIP and dstIP->srcIP are different flow, but they belongs to the same stream (bi-directional flows).
+
+        all frames / packets with the same 5-touple (source host, destination host, source port, destination port, transport protocol) regardless of packet direction are considered part of the same session.
 
    Note:
         1) the stream's calculation is not based on TCP 3 handshake, but on five tuple.
