@@ -7,17 +7,23 @@
         TCP and UDP streams in this source are based on five tuple <srcIP:srcPort<->dstIP:dstPort-protocol>, ignore the direction.
         srcIP->dstIP and dstIP->srcIP are different flow, but they belongs to the same stream (bi-directional flows).
 
-        all frames / packets with the same 5-touple (source host, destination host, source port, destination port, transport protocol) regardless of packet direction are considered part of the same session.
+        all packets with the same 5-touple (source host, destination host, source port, destination port, transport protocol)
+        regardless of packet direction are considered part of the same session.
 
    Note:
-        1) the stream's calculation is not based on TCP 3 handshake, but on five tuple.
+        1) the stream's calculation is not based on TCP 3 handshake, only on five tuple, so there will be problems if multiple TCP streams have the same tuple.
+           (If there will exist multiple TCP streams have the same five tuple? the answer is no)
            In new wireshark version, there will be more complicated to calculate stream.
-        2) ICMP do not have port, so it can not be recognized as stream.
+        2) it does not perform any proper TCP session reassembly. and out-of-order TCP packets will also cause the data to be store in an out of sequence.
+        3) ICMP do not have port, so it can not be recognized as stream.
 
     References:
         https://stackoverflow.com/questions/6076897/follow-tcp-stream-where-does-field-stream-index-come-from
         https://osqa-ask.wireshark.org/questions/59467/tcp-stream-index-question
         https://blog.packet-foo.com/2015/03/tcp-analysis-and-the-five-tuple/
+        https://www.netresec.com/?page=SplitCap
+        https://stackoverflow.com/questions/32317848/multiple-tcp-connection-on-same-ip-and-port/32318220
+
 """
 
 import binascii
@@ -30,11 +36,11 @@ from scapy.all import rdpcap
 
 def save_png(output_name='five_tuple.png', data=b'', width=28):
     hexst = binascii.hexlify(data)
-    im_size = width*width  # generated square image
+    im_size = width * width  # generated square image
     if im_size > ((len(hexst) // 2) // width) * width:
-        hexst = hexst + b'00'*(im_size-len(hexst)//2)
+        hexst = hexst + b'00' * (im_size - len(hexst) // 2)
     else:
-        hexst = hexst[:width*2*width*2]
+        hexst = hexst[:width * 2 * width * 2]
     # print(len(hexst))
     decimal_data = numpy.array([int(hexst[i:i + 2], 16) for i in range(0, len(hexst), 2)])  # 16(hex) ->10(decimal)
     decimal_data = numpy.reshape(decimal_data[:width * width], (-1, width))
