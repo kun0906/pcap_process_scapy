@@ -12,7 +12,7 @@
 
    Note:
         1) the stream's calculation is not based on TCP 3 handshake, only on five tuple, so there will be problems if multiple TCP streams have the same tuple.
-           (If there will exist multiple TCP streams have the same five tuple? the answer is no [5])
+           (If there will exist multiple TCP streams have the same five tuple? )
            In new wireshark version, there will be more complicated to calculate stream.
         2) it does not perform any proper TCP session reassembly. and out-of-order TCP packets will also cause the data to be store in an out of sequence.
         3) ICMP do not have port, so it can not be recognized as stream.
