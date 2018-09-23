@@ -12,17 +12,17 @@
 
    Note:
         1) the stream's calculation is not based on TCP 3 handshake, only on five tuple, so there will be problems if multiple TCP streams have the same tuple.
-           (If there will exist multiple TCP streams have the same five tuple? the answer is no)
+           (If there will exist multiple TCP streams have the same five tuple? the answer is no [5])
            In new wireshark version, there will be more complicated to calculate stream.
         2) it does not perform any proper TCP session reassembly. and out-of-order TCP packets will also cause the data to be store in an out of sequence.
         3) ICMP do not have port, so it can not be recognized as stream.
 
     References:
-        https://stackoverflow.com/questions/6076897/follow-tcp-stream-where-does-field-stream-index-come-from
-        https://osqa-ask.wireshark.org/questions/59467/tcp-stream-index-question
-        https://blog.packet-foo.com/2015/03/tcp-analysis-and-the-five-tuple/
-        https://www.netresec.com/?page=SplitCap
-        https://stackoverflow.com/questions/32317848/multiple-tcp-connection-on-same-ip-and-port/32318220
+        1. https://stackoverflow.com/questions/6076897/follow-tcp-stream-where-does-field-stream-index-come-from
+        2. https://osqa-ask.wireshark.org/questions/59467/tcp-stream-index-question
+        3. https://blog.packet-foo.com/2015/03/tcp-analysis-and-the-five-tuple/
+        4. https://www.netresec.com/?page=SplitCap
+        5. https://stackoverflow.com/questions/32317848/multiple-tcp-connection-on-same-ip-and-port/32318220
 
 """
 
