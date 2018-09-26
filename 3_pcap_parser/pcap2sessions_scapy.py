@@ -208,7 +208,22 @@ def pcap2sessions_forward_backward(input_file, output_dir=''):
     return output_dir
 
 
+def pcap2sessions_dir(input_dir, output_dir, layer='L7'):
+
+    for file in os.listdir(input_dir):
+        output_file_dir= os.path.join(output_dir,os.path.split(file)[-1].split('.')[0])
+        # if not os.path.exists(output_file_dir):
+        #     os.makedirs(output_file_dir)
+        file = os.path.join(input_dir,file)
+        print('processing ', file, ' -> output_dir:', output_file_dir)
+        pcap2sessions(file, output_file_dir, layer=layer)
+
+
 if __name__ == '__main__':
-    input_file = '../1_pcaps_data/aim_chat_3a.pcap'
-    pcap2sessions(input_file)
-    # pcap2flows(input_file)
+    # input_file = '../1_pcaps_data/aim_chat_3a.pcap'
+    # pcap2sessions(input_file)
+    # # pcap2flows(input_file)
+
+    input_dir = '../1_pcaps_data/VPN-Hangout'
+    output_dir= '../2_sessions_data'
+    pcap2sessions_dir(input_dir,output_dir,layer='L7')

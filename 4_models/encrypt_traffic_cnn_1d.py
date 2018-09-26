@@ -11,6 +11,7 @@ import numpy as np
 import os
 
 # load MNIST data
+# from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import input_data
 
 # start tensorflow interactiveSession
