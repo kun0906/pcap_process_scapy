@@ -35,8 +35,8 @@ def pcap2packets(input_file='.pcap or pcapng'):
                 if pkt.payload.payload.name.upper() in ["TCP", "UDP"]:
                     if cnt == 0:
                         print('packet info: "%s:%d-%s:%d-%s"+%s' % (
-                        pkt.payload.src, pkt.payload.payload.sport, pkt.payload.dst, pkt.payload.payload.dport,
-                        pkt.payload.payload.name, pkt.payload.payload))
+                            pkt.payload.src, pkt.payload.payload.sport, pkt.payload.dst, pkt.payload.payload.dport,
+                            pkt.payload.payload.name, pkt.payload.payload))
                     pkts_lst.append(pkt.payload)  # only include "IPv4+IPv4_payload"
                 else:
                     ab_pkts['non_TCP_UDP_pkts'] += 1
