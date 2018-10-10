@@ -10,7 +10,7 @@
     Created time:
         2018.10.10
     Version:
-        0.0.1
+        0.1.0 - major-minor-patch
     Author:
 
 """
