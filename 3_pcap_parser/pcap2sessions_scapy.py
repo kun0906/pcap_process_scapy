@@ -246,11 +246,11 @@ def count_protocls(sess_dict):
 
 def pcap2sessions_statistic(input_file):
     """
-        achieve the statistic of full sessions in pcap
-    :param input_file:
-    :return:
-    """
-    flags = {
+        achieve the statistic of full sessions in pcap after removing uncompleted TCP sessions
+        There is no process on UDP sessions
+
+        flags in scapy
+         flags = {
         'F': 'FIN',
         'S': 'SYN',
         'R': 'RST',
@@ -260,17 +260,18 @@ def pcap2sessions_statistic(input_file):
         'E': 'ECE',
         'C': 'CWR',
     }
-    # output_dir = ''
-    # if not os.path.exists(output_dir):
-    #     os.makedirs(output_dir)
-    # file_prefix = os.path.split(input_file)[-1].split('.')[0]
+    :param input_file:
+    :return:
+    """
 
-    # read from pcap and return a list of packets
+    # Step 1. read from pcap and return a list of packets
     pkts_lst = rdpcap(input_file)
     # data.stats
-    print('%s info is ', pkts_lst)
+    print('%s info is %s'%(input_file, pkts_lst))
     pkts_stats = {'non_Ether_pkts': 0, 'non_IPv4_pkts': 0, 'non_TCP_UDP_pkts': 0, 'IPv4_pkts': 0, 'TCP': 0, 'UDP': 0}
     print('packet info:"srcIP:srcPort-dstIP:dstPort-prtcl" + IP_payload')
+
+    # Step 2. achieve all the session in pcap.
     cnt = 0
     sess_dict = {}
     for pkt in pkts_lst:
@@ -278,7 +279,7 @@ def pcap2sessions_statistic(input_file):
             if pkt.payload.name.upper() in ['IP', 'IPV4']:
                 if pkt.payload.payload.name.upper() in ["TCP", "UDP"]:
                     if cnt == 0:
-                        print('packet info: "%s:%d-%s:%d-%s"+%s' % (
+                        print('packet[0] info: "%s:%d-%s:%d-%s"+%s' % (
                             pkt.payload.src, pkt.payload.payload.sport, pkt.payload.dst, pkt.payload.payload.dport,
                             pkt.payload.payload.name, pkt.payload.payload.payload))
                     five_tuple = pkt.payload.src + ':' + str(
@@ -293,57 +294,82 @@ def pcap2sessions_statistic(input_file):
                         pkts_stats['UDP'] += 1
                 else:
                     pkts_stats['non_TCP_UDP_pkts'] += 1
-                    pkts_stats['IPv4_pkts'] += 1
+                    # pkts_stats['IPv4_pkts'] += 1
             else:
                 pkts_stats['non_IPv4_pkts'] += 1
         else:
             pkts_stats['non_Ether_pkts'] += 1
 
+    # Step 3. achieve all full session in sess_dict.
     full_sess_dict = {}
     for k, v in sess_dict.items():
         prtl = k.split('-')[-1]
         if prtl == "TCP":
+            """
+                only save the first full session in v (maybe there are more than one full session in v)
+            """
             tcp_sess_list = []
             full_session_flg = False
-            i = 0
+            i = -1
+            TCP_start_flg = False
             for pkt in v:
+                i += 1
+                if len(v) < 5:   # tcp start (3 packets) + tcp finish (at least 2 packets)
+                    print('%s not full session, it only has %d packets'% (k,len(v)))
+                    break
                 S = str(pkt.payload.payload.fields['flags'])
+                # step 1. discern the begin of TCP session.
                 if 'S' in S:
-                    # if flags[S] == "SYN":
-                    tcp_sess_list.append(pkt)
-                    for pkt_t in v[i + 1:]:
+                    TCP_start_flg = True
+                    if 'A' not in S: # the first SYN packet in TCP session.
+                        # if flags[S] == "SYN":
+                        tcp_sess_list.append(pkt)
+                    else:# the second SYN + ACK
+                        tcp_sess_list.append(pkt)
+                    continue
+                # step 2. discern the transmitted data of TCP session
+                if TCP_start_flg:  # TCP data transform.
+                    for pkt_t in v[i:]:
                         tcp_sess_list.append(pkt_t)
                         F = str(pkt_t.payload.payload.fields['flags'])
-                        if 'F' in F:
-                            # if  flags[F]== "FIN":
-                            tcp_sess_list.append(pkt_t)
+                        if 'F' in F:  # if  flags[F]== "FIN":
                             full_session_flg = True
-                        else:
-                            if 'S' in str(pkt_t.payload.payload.fields['flags']):  # the second session
-                                break
-                else:
+                        # step 3. discern the finish of TCP session.
+                        if 'S' in str(pkt_t.payload.payload.fields['flags']) and len(
+                                tcp_sess_list) >= 5:  # the second session
+                            print('the second session begins.')
+                            break
+                else:  # TCP_start_flg = False
+                    # print('TCP still does not begin...')
                     pass
-                i += 1
-            if full_session_flg:
-                full_sess_dict[k] = tcp_sess_list
-                print('tcp_sess_list:', k, len(tcp_sess_list))
+                if full_session_flg:
+                    full_sess_dict[k] = tcp_sess_list
+                    print('tcp_sess_list:', k, len(tcp_sess_list))
+                    break
         elif prtl == "UDP":
-            full_sess_dict[k] = v
+            # if len(v) < 2:
+            #     print('%s is not a UDP session.'%k)
+            # else:
+            #     full_sess_dict[k] = v
+            full_sess_dict[k] =v   # do not do any process for UDP session.
         else:
             pass
-    # print(Counter(sess_dict))
     print('pkts_stats is ', pkts_stats)
-    print('Number of sessions(TCP/UDP) in %s is %d.' % (input_file, len(sess_dict.keys())))
-    print('Number of full sessions(TCP/UDP) in %s is %d.' % (input_file, len(full_sess_dict.keys())))
-    # print(full_sess_dict.keys())
+    print('Number of sessions(TCP/UDP) in %s is %d, number of full session(TCP/UDP) is %d' % (input_file, len(sess_dict.keys()),len(full_sess_dict.keys())))
     print('all_sess_dict:', count_protocls(sess_dict), '\nfull_sess_dict:', count_protocls(full_sess_dict))
 
-    # return output_dir
+    all_stats_dict = {}
+    all_stats_dict['pkts_stats']=pkts_stats
+    all_stats_dict['all_sess']=count_protocls(sess_dict)
+    all_stats_dict['full_sess']=count_protocls(full_sess_dict)
+
+    return all_stats_dict
 
 
 if __name__ == '__main__':
     input_file = '../1_pcaps_data/aim_chat_3a.pcap'
-    pcap2sessions_statistic(input_file)
+    all_stats_dict = pcap2sessions_statistic(input_file)
+    print(all_stats_dict)
     # pcap2sessions(input_file)
     # pcap2flows(input_file)
 
