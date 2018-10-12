@@ -28,6 +28,7 @@
 
 import binascii
 import os
+from collections import Counter
 
 import numpy
 from PIL import Image
@@ -209,21 +210,143 @@ def pcap2sessions_forward_backward(input_file, output_dir=''):
 
 
 def pcap2sessions_dir(input_dir, output_dir, layer='L7'):
-
     for file in os.listdir(input_dir):
-        output_file_dir= os.path.join(output_dir,os.path.split(file)[-1].split('.')[0])
+        output_file_dir = os.path.join(output_dir, os.path.split(file)[-1].split('.')[0])
         # if not os.path.exists(output_file_dir):
         #     os.makedirs(output_file_dir)
-        file = os.path.join(input_dir,file)
+        file = os.path.join(input_dir, file)
         print('processing ', file, ' -> output_dir:', output_file_dir)
         pcap2sessions(file, output_file_dir, layer=layer)
 
 
-if __name__ == '__main__':
-    # input_file = '../1_pcaps_data/aim_chat_3a.pcap'
-    # pcap2sessions(input_file)
-    # # pcap2flows(input_file)
+def save_session_to_dict(k='five_tuple', v='pkt', sess_dict={}):
+    k_src2dst = k
+    # swap src and dst
+    tmp_lst = k.split('-')
+    k_dst2src = tmp_lst[1] + '-' + tmp_lst[0] + '-' + tmp_lst[-1]
+    if k_src2dst not in sess_dict.keys() and k_dst2src not in sess_dict.keys():
+        sess_dict[k] = []
+    if k_src2dst in sess_dict.keys():
+        sess_dict[k].append(v)
+    else:
+        sess_dict[k_dst2src].append(v)
 
-    input_dir = '../1_pcaps_data/VPN-Hangout'
-    output_dir= '../2_sessions_data'
-    pcap2sessions_dir(input_dir,output_dir,layer='L7')
+
+def count_protocls(sess_dict):
+    res_dict = {}
+    for key in sess_dict.keys():
+        prtl = key.split('-')[-1]
+        if prtl not in res_dict.keys():
+            res_dict[prtl] = 1.0
+        else:
+            res_dict[prtl] += 1
+
+    return res_dict
+
+
+def pcap2sessions_statistic(input_file):
+    """
+        achieve the statistic of full sessions in pcap
+    :param input_file:
+    :return:
+    """
+    flags = {
+        'F': 'FIN',
+        'S': 'SYN',
+        'R': 'RST',
+        'P': 'PSH',
+        'A': 'ACK',
+        'U': 'URG',
+        'E': 'ECE',
+        'C': 'CWR',
+    }
+    # output_dir = ''
+    # if not os.path.exists(output_dir):
+    #     os.makedirs(output_dir)
+    # file_prefix = os.path.split(input_file)[-1].split('.')[0]
+
+    # read from pcap and return a list of packets
+    pkts_lst = rdpcap(input_file)
+    # data.stats
+    print('%s info is ', pkts_lst)
+    pkts_stats = {'non_Ether_pkts': 0, 'non_IPv4_pkts': 0, 'non_TCP_UDP_pkts': 0, 'IPv4_pkts': 0, 'TCP': 0, 'UDP': 0}
+    print('packet info:"srcIP:srcPort-dstIP:dstPort-prtcl" + IP_payload')
+    cnt = 0
+    sess_dict = {}
+    for pkt in pkts_lst:
+        if pkt.name == "Ethernet":
+            if pkt.payload.name.upper() in ['IP', 'IPV4']:
+                if pkt.payload.payload.name.upper() in ["TCP", "UDP"]:
+                    if cnt == 0:
+                        print('packet info: "%s:%d-%s:%d-%s"+%s' % (
+                            pkt.payload.src, pkt.payload.payload.sport, pkt.payload.dst, pkt.payload.payload.dport,
+                            pkt.payload.payload.name, pkt.payload.payload.payload))
+                    five_tuple = pkt.payload.src + ':' + str(
+                        pkt.payload.payload.sport) + '-' + pkt.payload.dst + ':' + str(
+                        pkt.payload.payload.dport) + '-' + pkt.payload.payload.name.upper()
+                    save_session_to_dict(k=five_tuple, v=pkt, sess_dict=sess_dict)
+                    cnt += 1
+                    # pkts_lst.append(pkt.payload)  # only include "IPv4+IPv4_payload"
+                    if pkt.payload.payload.name.upper() == "TCP":
+                        pkts_stats['TCP'] += 1
+                    else:
+                        pkts_stats['UDP'] += 1
+                else:
+                    pkts_stats['non_TCP_UDP_pkts'] += 1
+                    pkts_stats['IPv4_pkts'] += 1
+            else:
+                pkts_stats['non_IPv4_pkts'] += 1
+        else:
+            pkts_stats['non_Ether_pkts'] += 1
+
+    full_sess_dict = {}
+    for k, v in sess_dict.items():
+        prtl = k.split('-')[-1]
+        if prtl == "TCP":
+            tcp_sess_list = []
+            full_session_flg = False
+            i = 0
+            for pkt in v:
+                S = str(pkt.payload.payload.fields['flags'])
+                if 'S' in S:
+                    # if flags[S] == "SYN":
+                    tcp_sess_list.append(pkt)
+                    for pkt_t in v[i + 1:]:
+                        tcp_sess_list.append(pkt_t)
+                        F = str(pkt_t.payload.payload.fields['flags'])
+                        if 'F' in F:
+                            # if  flags[F]== "FIN":
+                            tcp_sess_list.append(pkt_t)
+                            full_session_flg = True
+                        else:
+                            if 'S' in str(pkt_t.payload.payload.fields['flags']):  # the second session
+                                break
+                else:
+                    pass
+                i += 1
+            if full_session_flg:
+                full_sess_dict[k] = tcp_sess_list
+                print('tcp_sess_list:', k, len(tcp_sess_list))
+        elif prtl == "UDP":
+            full_sess_dict[k] = v
+        else:
+            pass
+    # print(Counter(sess_dict))
+    print('pkts_stats is ', pkts_stats)
+    print('Number of sessions(TCP/UDP) in %s is %d.' % (input_file, len(sess_dict.keys())))
+    print('Number of full sessions(TCP/UDP) in %s is %d.' % (input_file, len(full_sess_dict.keys())))
+    # print(full_sess_dict.keys())
+    print('all_sess_dict:', count_protocls(sess_dict), '\nfull_sess_dict:', count_protocls(full_sess_dict))
+
+    # return output_dir
+
+
+if __name__ == '__main__':
+    input_file = '../1_pcaps_data/aim_chat_3a.pcap'
+    pcap2sessions_statistic(input_file)
+    # pcap2sessions(input_file)
+    # pcap2flows(input_file)
+
+    # input_dir = '../1_pcaps_data/VPN-Hangout'
+    # output_dir= '../2_sessions_data'
+    # pcap2sessions_dir(input_dir,output_dir,layer='L7')
