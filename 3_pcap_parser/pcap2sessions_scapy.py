@@ -238,7 +238,7 @@ def count_protocls(sess_dict):
     for key in sess_dict.keys():
         prtl = key.split('-')[-1]
         if prtl not in res_dict.keys():
-            res_dict[prtl] = 1.0
+            res_dict[prtl] = 1
         else:
             res_dict[prtl] += 1
 
@@ -397,7 +397,7 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
         for file in file_lst:
             st_tmp=time.time()
             stats_info = pcap2sessions_statistic(os.path.join(input_dir, file))
-            print('%d/%d => %s takes %f(s)\n'%(i, len(file_lst), file, time.time()-st_tmp))
+            print('%d/%d => %s takes %.2f(s)\n'%(i, len(file_lst), file, time.time()-st_tmp))
             line_str = '%s\n'%stats_info
             out.write(line_str)
             out.flush()
