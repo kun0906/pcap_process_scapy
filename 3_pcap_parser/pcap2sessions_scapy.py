@@ -239,8 +239,8 @@ def count_protocls(sess_dict):
     :param sess_dict:
     :return:
     """
-    res_dict = {'TCP':0,'UDP':0}
-    prtls_lst =[]
+    res_dict = {'TCP': 0, 'UDP': 0}
+    prtls_lst = []
     for key in sess_dict.keys():
         prtl = key.split('-')[-1]
         if prtl not in res_dict.keys():
@@ -257,14 +257,13 @@ def count_protocls(sess_dict):
     return res_dict
 
 
-
 def count_sess_size(sess_dict):
     """
         get each sess size (sum of pkts_len in this sess), not flow.
     :param sess_dict:
     :return:
     """
-    res_dict = {'TCP':[],'UDP':[]}
+    res_dict = {'TCP': [], 'UDP': []}
     for key in sess_dict.keys():
         prtl = key.split('-')[-1]
         if prtl not in res_dict.keys():
@@ -404,7 +403,7 @@ def pcap2sessions_statistic(input_file):
     all_stats_dict['pkts_stats'] = pkts_stats
     all_stats_dict['all_sess'] = count_protocls(sess_dict)
     all_stats_dict['full_sess'] = count_protocls(full_sess_dict)
-    all_stats_dict['full_sess_size_distribution']= count_sess_size(full_sess_dict)
+    all_stats_dict['full_sess_size_distribution'] = count_sess_size(full_sess_dict)
 
     print(all_stats_dict)
 
@@ -418,10 +417,10 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
     :param out_file:
     :return:
     """
-    st=time.time()
+    st = time.time()
     all_stats_dict = {'full_sess': {'TCP': 0, 'UDP': 0}, 'all_sess': {'TCP': 0, 'UDP': 0},
                       'pkts_stats': {'TCP_pkts': 0, 'UDP_pkts': 0, 'non_TCP_UDP_pkts': 0, 'non_IPv4_pkts': 0,
-                                     'non_Ether_pkts': 0},'full_sess_size_distribution':{'TCP':[],'UDP':[]}}
+                                     'non_Ether_pkts': 0}, 'full_sess_size_distribution': {'TCP': [], 'UDP': []}}
     # all_stats_dict['full_sess']['TCP'] =0
     # all_stats_dict['full_sess']['UDP'] =0
     # all_stats_dict['all_sess']['TCP'] =0
@@ -435,13 +434,14 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
     i = 1
     with open(out_file, 'w') as out:
         for file in file_lst:
-            st_tmp=time.time()
+            st_tmp = time.time()
             stats_info = pcap2sessions_statistic(os.path.join(input_dir, file))
-            print('%d/%d => %s takes %.2f(s)\n'%(i, len(file_lst), file, time.time()-st_tmp))
-            line_str = '%d/%d => %s takes %.2f(s) => '%(i, len(file_lst), file, time.time()-st_tmp)+'%s\n'%stats_info
+            print('%d/%d => %s takes %.2f(s)\n' % (i, len(file_lst), file, time.time() - st_tmp))
+            line_str = '%d/%d => %s takes %.2f(s) => ' % (
+            i, len(file_lst), file, time.time() - st_tmp) + '%s\n' % stats_info
             out.write(line_str)
             out.flush()
-            i +=1
+            i += 1
             all_stats_dict['full_sess']['TCP'] += stats_info['full_sess']['TCP']
             all_stats_dict['full_sess']['UDP'] += stats_info['full_sess']['UDP']
             all_stats_dict['all_sess']['TCP'] += stats_info['all_sess']['TCP']
@@ -451,14 +451,18 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
             all_stats_dict['pkts_stats']['non_TCP_UDP_pkts'] += stats_info['pkts_stats']['non_TCP_UDP_pkts']
             all_stats_dict['pkts_stats']['non_IPv4_pkts'] += stats_info['pkts_stats']['non_IPv4_pkts']
             all_stats_dict['pkts_stats']['non_Ether_pkts'] += stats_info['pkts_stats']['non_Ether_pkts']
-            all_stats_dict['full_sess_size_distribution']['TCP'].append([file,stats_info['full_sess_size_distribution']['TCP']])
-            all_stats_dict['full_sess_size_distribution']['UDP'].append([file,stats_info['full_sess_size_distribution']['UDP']])
+            all_stats_dict['full_sess_size_distribution']['TCP'].append(
+                [file, len(stats_info['full_sess_size_distribution']['TCP']),
+                 stats_info['full_sess_size_distribution']['TCP']])
+            all_stats_dict['full_sess_size_distribution']['UDP'].append(
+                [file, len(stats_info['full_sess_size_distribution']['UDP']),
+                 stats_info['full_sess_size_distribution']['UDP']])
 
         line_str = '\nall _stats_dict => %s\n' % stats_info
         out.write(line_str)
 
     print('all_stats_dict:', all_stats_dict)
-    print('It takes %.2f(s)'%(time.time()-st))
+    print('It takes %.2f(s)' % (time.time() - st))
 
     return all_stats_dict
 
