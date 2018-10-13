@@ -269,7 +269,7 @@ def pcap2sessions_statistic(input_file):
     pkts_lst = rdpcap(input_file)
     # data.stats
     print('%s info is %s' % (input_file, pkts_lst))
-    pkts_stats = {'non_Ether_pkts': 0, 'non_IPv4_pkts': 0, 'non_TCP_UDP_pkts': 0, 'IPv4_pkts': 0, 'TCP_pkts': 0,
+    pkts_stats = {'non_Ether_pkts': 0, 'non_IPv4_pkts': 0, 'non_TCP_UDP_pkts': 0, 'TCP_pkts': 0,
                   'UDP_pkts': 0}
     print('packet info:"srcIP:srcPort-dstIP:dstPort-prtcl" + IP_payload')
 
@@ -398,7 +398,7 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
             st_tmp=time.time()
             stats_info = pcap2sessions_statistic(os.path.join(input_dir, file))
             print('%d/%d => %s takes %.2f(s)\n'%(i, len(file_lst), file, time.time()-st_tmp))
-            line_str = '%s\n'%stats_info
+            line_str = '%d/%d => %s takes %.2f(s)\n'%(i, len(file_lst), file, time.time()-st_tmp)+'%s\n'%stats_info
             out.write(line_str)
             out.flush()
             i +=1
