@@ -398,7 +398,7 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
             st_tmp=time.time()
             stats_info = pcap2sessions_statistic(os.path.join(input_dir, file))
             print('%d/%d => %s takes %.2f(s)\n'%(i, len(file_lst), file, time.time()-st_tmp))
-            line_str = '%d/%d => %s takes %.2f(s)'%(i, len(file_lst), file, time.time()-st_tmp)+'%s\n'%stats_info
+            line_str = '%d/%d => %s takes %.2f(s) => '%(i, len(file_lst), file, time.time()-st_tmp)+'%s\n'%stats_info
             out.write(line_str)
             out.flush()
             i +=1
@@ -411,6 +411,9 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
             all_stats_dict['pkts_stats']['non_TCP_UDP_pkts'] += stats_info['pkts_stats']['non_TCP_UDP_pkts']
             all_stats_dict['pkts_stats']['non_IPv4_pkts'] += stats_info['pkts_stats']['non_IPv4_pkts']
             all_stats_dict['pkts_stats']['non_Ether_pkts'] += stats_info['pkts_stats']['non_Ether_pkts']
+
+        line_str = '\nall _stats_dict => %s\n' % stats_info
+        out.write(line_str)
 
     print('all_stats_dict:', all_stats_dict)
     print('It takes %.2f(s)'%(time.time()-st))
