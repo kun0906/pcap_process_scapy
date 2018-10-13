@@ -458,7 +458,7 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
                 [file, len(stats_info['full_sess_size_distribution']['UDP']),
                  stats_info['full_sess_size_distribution']['UDP']])
 
-        line_str = '\nall _stats_dict => %s\n' % stats_info
+        line_str = '\nall _stats_dict => %s\n' % all_stats_dict
         out.write(line_str)
 
     print('all_stats_dict:', all_stats_dict)
