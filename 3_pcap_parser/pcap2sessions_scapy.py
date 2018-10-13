@@ -398,7 +398,7 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
             st_tmp=time.time()
             stats_info = pcap2sessions_statistic(os.path.join(input_dir, file))
             print('%d/%d => %s takes %.2f(s)\n'%(i, len(file_lst), file, time.time()-st_tmp))
-            line_str = '%d/%d => %s takes %.2f(s)\n'%(i, len(file_lst), file, time.time()-st_tmp)+'%s\n'%stats_info
+            line_str = '%d/%d => %s takes %.2f(s)'%(i, len(file_lst), file, time.time()-st_tmp)+'%s\n'%stats_info
             out.write(line_str)
             out.flush()
             i +=1
