@@ -234,20 +234,43 @@ def save_session_to_dict(k='five_tuple', v='pkt', sess_dict={}):
 
 
 def count_protocls(sess_dict):
-    res_dict = {}
+    """
+        get TCP and UDP distribution
+    :param sess_dict:
+    :return:
+    """
+    res_dict = {'TCP':0,'UDP':0}
+    prtls_lst =[]
     for key in sess_dict.keys():
         prtl = key.split('-')[-1]
         if prtl not in res_dict.keys():
             res_dict[prtl] = 1
         else:
             res_dict[prtl] += 1
+        prtls_lst.append(prtl)
 
-    if 'TCP' not in sess_dict.keys():
-        res_dict['TCP'] =0
-    elif 'UDP' not in sess_dict.keys():
-        res_dict['UDP']=0
-    else:
-        pass
+    # if 'TCP' not in prtls_lst:
+    #     res_dict['TCP'] =0
+    # if 'UDP' not in prtls_lst:
+    #     res_dict['UDP']=0
+
+    return res_dict
+
+
+
+def count_sess_size(sess_dict):
+    """
+        get each sess size (sum of pkts_len in this sess), not flow.
+    :param sess_dict:
+    :return:
+    """
+    res_dict = {'TCP':[],'UDP':[]}
+    for key in sess_dict.keys():
+        prtl = key.split('-')[-1]
+        if prtl not in res_dict.keys():
+            res_dict[prtl] = [sum([len(p) for p in sess_dict[key]])]
+        else:
+            res_dict[prtl].append(sum([len(p) for p in sess_dict[key]]))
 
     return res_dict
 
@@ -271,9 +294,18 @@ def pcap2sessions_statistic(input_file):
     :param input_file:
     :return:
     """
-
+    st = time.time()
+    print('process ... \'%s\'' % input_file)
     # Step 1. read from pcap and return a list of packets
-    pkts_lst = rdpcap(input_file)
+    try:
+        pkts_lst = rdpcap(input_file)
+    except MemoryError as me:
+        print('memory error ', me)
+        return -1
+    except FileNotFoundError as fnfe:
+        print('file not found ', fnfe)
+        return -2
+
     # data.stats
     print('%s info is %s' % (input_file, pkts_lst))
     pkts_stats = {'non_Ether_pkts': 0, 'non_IPv4_pkts': 0, 'non_TCP_UDP_pkts': 0, 'TCP_pkts': 0,
@@ -372,6 +404,7 @@ def pcap2sessions_statistic(input_file):
     all_stats_dict['pkts_stats'] = pkts_stats
     all_stats_dict['all_sess'] = count_protocls(sess_dict)
     all_stats_dict['full_sess'] = count_protocls(full_sess_dict)
+    all_stats_dict['full_sess_size_distribution']= count_sess_size(full_sess_dict)
 
     print(all_stats_dict)
 
@@ -403,7 +436,6 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
     with open(out_file, 'w') as out:
         for file in file_lst:
             st_tmp=time.time()
-            print('process ... \'%s\''%file)
             stats_info = pcap2sessions_statistic(os.path.join(input_dir, file))
             print('%d/%d => %s takes %.2f(s)\n'%(i, len(file_lst), file, time.time()-st_tmp))
             line_str = '%d/%d => %s takes %.2f(s) => '%(i, len(file_lst), file, time.time()-st_tmp)+'%s\n'%stats_info
@@ -430,8 +462,9 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
 
 
 if __name__ == '__main__':
-    input_file = '../1_pcaps_data/UDP.pcap'
-    pcap2sessions_statistic(input_file)
+    # input_file = '../1_pcaps_data/UDP.pcap'
+    # input_file = '../1_pcaps_data/aim_chat_3a.pcap'
+    # pcap2sessions_statistic(input_file)
 
     input_dir = '../1_pcaps_data'
     achieve_stats_info_for_dir(input_dir)
