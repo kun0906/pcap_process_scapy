@@ -242,6 +242,13 @@ def count_protocls(sess_dict):
         else:
             res_dict[prtl] += 1
 
+    if 'TCP' not in sess_dict.keys():
+        res_dict['TCP'] =0
+    elif 'UDP' not in sess_dict.keys():
+        res_dict['UDP']=0
+    else:
+        pass
+
     return res_dict
 
 
@@ -396,6 +403,7 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
     with open(out_file, 'w') as out:
         for file in file_lst:
             st_tmp=time.time()
+            print('process ... \'%s\''%file)
             stats_info = pcap2sessions_statistic(os.path.join(input_dir, file))
             print('%d/%d => %s takes %.2f(s)\n'%(i, len(file_lst), file, time.time()-st_tmp))
             line_str = '%d/%d => %s takes %.2f(s) => '%(i, len(file_lst), file, time.time()-st_tmp)+'%s\n'%stats_info
@@ -422,8 +430,8 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
 
 
 if __name__ == '__main__':
-    # input_file = '../1_pcaps_data/aim_chat_3a.pcap'
-    # pcap2sessions_statistic(input_file)
+    input_file = '../1_pcaps_data/UDP.pcap'
+    pcap2sessions_statistic(input_file)
 
     input_dir = '../1_pcaps_data'
     achieve_stats_info_for_dir(input_dir)
