@@ -469,13 +469,14 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
 
     return all_stats_dict
 
+
 def parse_params():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--input_dir,-i', type=str, dest='input_dir', help='directroy includes *.pcaps or *.pcapngs',
-                        default='../1_pcaps_data')
-    parser.add_argument('--out_file, -o', dest='out_file', help="the print information of this scripts to out_file",
+    parser = argparse.ArgumentParser(prog='pcap2sessions')
+    parser.add_argument('-i','--input_dir', type=str, dest='input_dir', help='directroy includes *.pcaps or *.pcapngs',
+                        default='../1_pcaps_data',required=True)  # '-i' short name, '--input_dir' full name
+    parser.add_argument('-o','--out_file', dest='out_file', help="the print information of this scripts to out_file",
                         default='./log.txt')
-    args = parser.parse_args()
+    args = vars(parser.parse_args())
 
     return args
 
@@ -487,7 +488,8 @@ if __name__ == '__main__':
 
     input_dir = '../1_pcaps_data'
     args = parse_params()
-    achieve_stats_info_for_dir(input_dir=args.input_dir,out_file=args.out_file)
+    print(args)
+    achieve_stats_info_for_dir(input_dir=args['input_dir'],out_file=args['out_file'])
 
     # pcap2sessions(input_file)
     # pcap2flows(input_file)
