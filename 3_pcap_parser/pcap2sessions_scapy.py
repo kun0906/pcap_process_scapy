@@ -304,6 +304,9 @@ def pcap2sessions_statistic(input_file):
     except FileNotFoundError as fnfe:
         print('file not found ', fnfe)
         return -2
+    except:
+        print('other exceptions')
+        return -10
 
     # data.stats
     print('%s info is %s' % (input_file, pkts_lst))
