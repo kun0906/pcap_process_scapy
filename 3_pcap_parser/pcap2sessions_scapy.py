@@ -367,7 +367,8 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
                     five_tuple = pkt.payload.src + ':' + str(
                         pkt.payload.payload.sport) + '-' + pkt.payload.dst + ':' + str(
                         pkt.payload.payload.dport) + '-' + pkt.payload.payload.name.upper()
-                    save_session_to_dict(k=five_tuple, v=pkt, sess_dict=sess_dict)
+                    # save_session_to_dict(k=five_tuple, v=pkt,sess_dict=sess_dict)
+                    save_session_to_dict(k=five_tuple, v=pkt.payload, sess_dict=sess_dict)  # only save Ethernet payload to sess_dict
                     cnt += 1
                     # pkts_lst.append(pkt.payload)  # only include "IPv4+IPv4_payload"
                     if pkt.payload.payload.name.upper() == "TCP":
@@ -414,7 +415,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
 
     # Step 3. achieve all full session in sess_dict.
     full_sess_dict = {}
-    for k, v in sess_dict.items():
+    for k, v in sess_dict.items():   # all pkts in sess_dict without Ethernet headers and tails
         prtl = k.split('-')[-1]
         if prtl == "TCP":
             """
@@ -429,7 +430,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
                 if len(v) < 5:  # tcp start (3 packets) + tcp finish (at least 2 packets)
                     print('%s not full session, it only has %d packets' % (k, len(v)))
                     break
-                S = str(pkt.payload.payload.fields['flags'])
+                S = str(pkt.payload.fields['flags'])
                 # step 1. discern the begin of TCP session.
                 if 'S' in S:
                     if 'A' not in S:  # the first SYN packet in TCP session.
@@ -444,11 +445,11 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
                 if TCP_start_flg:  # TCP data transform.
                     for pkt_t in v[i:]:
                         tcp_sess_list.append(pkt_t)
-                        F = str(pkt_t.payload.payload.fields['flags'])
+                        F = str(pkt_t.payload.fields['flags'])
                         if 'F' in F:  # if  flags[F]== "FIN":
                             full_session_flg = True
                         # step 3. discern the finish of TCP session.
-                        if 'S' in str(pkt_t.payload.payload.fields['flags']) and len(
+                        if 'S' in str(pkt_t.payload.fields['flags']) and len(
                                 tcp_sess_list) >= 5:  # the second session
                             print('the second session begins.')
                             break
