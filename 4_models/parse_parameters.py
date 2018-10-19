@@ -25,5 +25,5 @@ def parse_params():
 
 
 if __name__ == '__main__':
-    args=parse_params()
+    args = parse_params()
     print(args)

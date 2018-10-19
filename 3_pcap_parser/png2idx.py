@@ -1,29 +1,27 @@
-
 import os
-import errno
-from PIL import Image
 from array import *
-from random import shuffle
+
+from PIL import Image
+
 
 def png2idx(input_dir='../2_flows_data', output_dir='../2_flows_train/train'):
-
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    name = [input_dir,output_dir]
-    labels_dict={}
+    name = [input_dir, output_dir]
+    labels_dict = {}
     FileList = os.listdir(input_dir)
     data_image = array('B')
     data_label = array('B')
-    lb_int=0
+    lb_int = 0
     for filename in FileList:
-        filename = os.path.join(input_dir,filename)
+        filename = os.path.join(input_dir, filename)
         # print(filename)
-        lb_key=os.path.split(filename)[-1].split('|')[0]
+        lb_key = os.path.split(filename)[-1].split('|')[0]
         if lb_key not in labels_dict.keys():
-            labels_dict[lb_key]=lb_int
-            lb_int +=0
+            labels_dict[lb_key] = lb_int
+            lb_int += 0
         # label = int(filename.split('/')[2])
-        label=labels_dict[lb_key]
+        label = labels_dict[lb_key]
         Im = Image.open(filename)
         pixel = Im.load()
         width, height = Im.size
@@ -61,6 +59,7 @@ def png2idx(input_dir='../2_flows_data', output_dir='../2_flows_train/train'):
     # gzip resulting files
     os.system('gzip ' + name[1] + '-images-idx3-ubyte')
     os.system('gzip ' + name[1] + '-labels-idx1-ubyte')
+
 
 if __name__ == '__main__':
     png2idx()

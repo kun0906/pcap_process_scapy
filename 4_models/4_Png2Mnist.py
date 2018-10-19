@@ -5,11 +5,12 @@
 # can obtain one at http://mozilla.org/MPL/2.0/.
 # ==============================================================================
 
-import os
 import errno
-from PIL import Image
+import os
 from array import *
 from random import shuffle
+
+from PIL import Image
 
 
 def mkdir_p(path):

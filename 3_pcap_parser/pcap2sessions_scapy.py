@@ -24,13 +24,22 @@
         4. https://www.netresec.com/?page=SplitCap
         5. https://stackoverflow.com/questions/32317848/multiple-tcp-connection-on-same-ip-and-port/32318220
 
+
+
+    Note:
+        #os.listdir(path)
+            # Return a list containing the names of the entries in the directory given by path. The list is in arbitrary order.
+            # It does not include the special entries '.' and '..' even if they are present in the directory.
+            # Order cannot be relied upon and is an artifact of the filesystem.
+            # To sort the result, use sorted(os.listdir(path)).
+
 """
 
+import argparse
 import binascii
 import os
-import sys
 import time
-import argparse
+
 import numpy
 from PIL import Image
 from scapy.all import rdpcap
@@ -434,6 +443,13 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
     # all_stats_dict['pkts_stats']['non_IPv4_pkts'] =0
     # all_stats_dict['pkts_stats']['non_Ether_pkts'] =0
     file_lst = os.listdir(input_dir)
+    #
+    #os.listdir(path)
+    # Return a list containing the names of the entries in the directory given by path. The list is in arbitrary order.
+    # It does not include the special entries '.' and '..' even if they are present in the directory.
+    # Order cannot be relied upon and is an artifact of the filesystem.
+    # To sort the result, use sorted(os.listdir(path)).
+    #
     i = 1
     with open(out_file, 'w') as out:
         for file in file_lst:
@@ -441,7 +457,7 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
             stats_info = pcap2sessions_statistic(os.path.join(input_dir, file))
             print('%d/%d => %s takes %.2f(s)\n' % (i, len(file_lst), file, time.time() - st_tmp))
             line_str = '%d/%d => %s takes %.2f(s) => ' % (
-            i, len(file_lst), file, time.time() - st_tmp) + '%s\n' % stats_info
+                i, len(file_lst), file, time.time() - st_tmp) + '%s\n' % stats_info
             out.write(line_str)
             out.flush()
             i += 1
@@ -472,9 +488,9 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
 
 def parse_params():
     parser = argparse.ArgumentParser(prog='pcap2sessions')
-    parser.add_argument('-i','--input_dir', type=str, dest='input_dir', help='directroy includes *.pcaps or *.pcapngs',
-                        default='../1_pcaps_data',required=True)  # '-i' short name, '--input_dir' full name
-    parser.add_argument('-o','--out_file', dest='out_file', help="the print information of this scripts to out_file",
+    parser.add_argument('-i', '--input_dir', type=str, dest='input_dir', help='directroy includes *.pcaps or *.pcapngs',
+                        default='../1_pcaps_data', required=True)  # '-i' short name, '--input_dir' full name
+    parser.add_argument('-o', '--out_file', dest='out_file', help="the print information of this scripts to out_file",
                         default='./log.txt')
     args = vars(parser.parse_args())
 
@@ -489,7 +505,7 @@ if __name__ == '__main__':
     input_dir = '../1_pcaps_data'
     args = parse_params()
     print(args)
-    achieve_stats_info_for_dir(input_dir=args['input_dir'],out_file=args['out_file'])
+    achieve_stats_info_for_dir(input_dir=args['input_dir'], out_file=args['out_file'])
 
     # pcap2sessions(input_file)
     # pcap2flows(input_file)
