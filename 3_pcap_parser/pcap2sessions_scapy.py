@@ -493,7 +493,7 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
     st = time.time()
     all_stats_dict = {'full_sess': {'TCP': 0, 'UDP': 0}, 'all_sess': {'TCP': 0, 'UDP': 0},
                       'pkts_stats': {'TCP_pkts': 0, 'UDP_pkts': 0, 'non_TCP_UDP_pkts': 0, 'non_IPv4_pkts': 0,
-                                     'non_Ether_pkts': 0}, 'full_sess_size_distribution': {'TCP': [], 'UDP': []}}
+                                     'non_Ether_IPv4_pkts': 0}, 'full_sess_size_distribution': {'TCP': [], 'UDP': []}}
     # all_stats_dict['full_sess']['TCP'] =0
     # all_stats_dict['full_sess']['UDP'] =0
     # all_stats_dict['all_sess']['TCP'] =0
@@ -502,7 +502,7 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
     # all_stats_dict['pkts_stats']['UDP_pkts']=0
     # all_stats_dict['pkts_stats']['non_TCP_UDP_pkts'] =0
     # all_stats_dict['pkts_stats']['non_IPv4_pkts'] =0
-    # all_stats_dict['pkts_stats']['non_Ether_pkts'] =0
+    # all_stats_dict['pkts_stats']['non_Ether_IPv4_pkts'] =0
     file_lst = os.listdir(input_dir)
     #
     #os.listdir(path)
@@ -530,7 +530,7 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
             all_stats_dict['pkts_stats']['UDP_pkts'] += stats_info['pkts_stats']['UDP_pkts']
             all_stats_dict['pkts_stats']['non_TCP_UDP_pkts'] += stats_info['pkts_stats']['non_TCP_UDP_pkts']
             all_stats_dict['pkts_stats']['non_IPv4_pkts'] += stats_info['pkts_stats']['non_IPv4_pkts']
-            all_stats_dict['pkts_stats']['non_Ether_pkts'] += stats_info['pkts_stats']['non_Ether_pkts']
+            all_stats_dict['pkts_stats']['non_Ether_IPv4_pkts'] += stats_info['pkts_stats']['non_Ether_IPv4_pkts']
             all_stats_dict['full_sess_size_distribution']['TCP'].append(
                 [file, len(stats_info['full_sess_size_distribution']['TCP']),
                  stats_info['full_sess_size_distribution']['TCP']])
