@@ -457,7 +457,7 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
         for file in file_lst:
             st_tmp = time.time()
             stats_info = pcap2sessions_statistic(os.path.join(input_dir, file))
-            print('\n%d/%d => %s takes %.2f(s)\n' % (i, len(file_lst), file, time.time() - st_tmp),flush=True)
+            print('%d/%d => %s takes %.2f(s)\n' % (i, len(file_lst), file, time.time() - st_tmp),flush=True)
             line_str = '%d/%d => %s takes %.2f(s) => ' % (
                 i, len(file_lst), file, time.time() - st_tmp) + '%s\n' % stats_info
             out.write(line_str)
@@ -479,7 +479,7 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
                 [file, len(stats_info['full_sess_size_distribution']['UDP']),
                  stats_info['full_sess_size_distribution']['UDP']])
 
-        line_str = '\nall _stats_dict => %s\n' % all_stats_dict
+        line_str = '\nall _stats_dict => %s\n\n' % all_stats_dict
         out.write(line_str)
 
     print('all_stats_dict:', all_stats_dict)
