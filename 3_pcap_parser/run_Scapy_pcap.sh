@@ -13,7 +13,7 @@
 #SBATCH --time=48:00:00
 #
 # expect the job to use no more than 24GB of memory
-#SBATCH --mem=60GB
+#SBATCH --mem=200GB
 #
 # once job ends, send me an email
 #SBATCH --mail-type=END

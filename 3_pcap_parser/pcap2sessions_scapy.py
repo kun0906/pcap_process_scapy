@@ -43,6 +43,8 @@ import time
 import numpy
 from PIL import Image
 from scapy.all import rdpcap
+import functools
+print = functools.partial(print, flush=True)
 
 
 def save_png(output_name='five_tuple.png', data=b'', width=28):
@@ -303,7 +305,7 @@ def pcap2sessions_statistic(input_file):
     :return:
     """
     st = time.time()
-    print('process ... \'%s\'' % input_file)
+    print('process ... \'%s\'' % input_file,flush=True)
     # Step 1. read from pcap and return a list of packets
     try:
         pkts_lst = rdpcap(input_file)
@@ -455,7 +457,7 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
         for file in file_lst:
             st_tmp = time.time()
             stats_info = pcap2sessions_statistic(os.path.join(input_dir, file))
-            print('%d/%d => %s takes %.2f(s)\n' % (i, len(file_lst), file, time.time() - st_tmp))
+            print('\n%d/%d => %s takes %.2f(s)\n' % (i, len(file_lst), file, time.time() - st_tmp),flush=True)
             line_str = '%d/%d => %s takes %.2f(s) => ' % (
                 i, len(file_lst), file, time.time() - st_tmp) + '%s\n' % stats_info
             out.write(line_str)
