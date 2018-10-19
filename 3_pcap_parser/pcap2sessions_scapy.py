@@ -42,7 +42,10 @@ import time
 
 import numpy
 from PIL import Image
-from scapy.all import rdpcap, PcapReader
+from scapy import packet
+from scapy.all import rdpcap, PcapReader, sniff
+from scapy.layers.inet import IP
+from scapy.layers.l2 import Raw
 import functools
 print = functools.partial(print, flush=True)
 
@@ -325,8 +328,9 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
     print('process ... \'%s\'' % input_f,flush=True)
     # Step 1. read from pcap and do not return a list of packets
     try:
-        # pkts_lst = rdpcap(input_f)  # this will read all packets in memory at once.
-        myreader = PcapReader(input_f)
+        # pkts_lst = rdpcap(input_f)  # this will read all packets in memory at once, please don't use it directly.
+        #  input_f  = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/1_pcaps_data/vpn_hangouts_audio2.pcap'  #
+        myreader = PcapReader(input_f)  # iterator, please use it to process large file, such as more than 4 GB
     except MemoryError as me:
         print('memory error ', me)
         return -1
@@ -343,11 +347,17 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
                   'UDP_pkts': 0}
     cnt = 0
     sess_dict = {}
+    first_print_flg = True
     while True:
         pkt = myreader.read_packet()
         if pkt is None:
             break
+
+        # step 1. parse "Ethernet" firstly
         if pkt.name == "Ethernet":
+            if first_print_flg:
+                first_print_flg = False
+                print('\'%s\' encapsulated by "Ethernet Header" directly' % input_f)
             if pkt.payload.name.upper() in ['IP', 'IPV4']:
                 if pkt.payload.payload.name.upper() in ["TCP", "UDP"]:
                     if cnt == 0:
@@ -369,8 +379,11 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
                     # pkts_stats['IPv4_pkts'] += 1
             else:
                 pkts_stats['non_IPv4_pkts'] += 1
-        elif pkt.name =='Raw packet':
-            print('pkt.name : ', pkt.name)
+        else:  # step 2. if this pkt can not be recognized as "Ethernet", then try to parse it as (IP,IPv4)
+            pkt = IP(pkt)  # without ethernet header,  then try to parse it as (IP,IPv4)
+            if first_print_flg:
+                first_print_flg = False
+                print('\'%s\' encapsulated by "IP Header" directly, without "Ethernet Header"'%input_f)
             if pkt.name.upper() in ['IP', 'IPV4']:
                 if pkt.payload.name.upper() in ["TCP", "UDP"]:
                     if cnt == 0:
@@ -392,8 +405,8 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
                     # pkts_stats['IPv4_pkts'] += 1
             else:
                 pkts_stats['non_IPv4_pkts'] += 1
-        else:
-            pkts_stats['non_Ether_IPv4_pkts'] += 1
+                # print('unknown packets type!',pkt.name)
+                pkts_stats['non_Ether_IPv4_pkts'] += 1
 
     # data.stats
     # print('%s info is %s' % (input_f, pkts_lst))
@@ -502,7 +515,7 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
     with open(out_file, 'w') as out:
         for file in file_lst:
             st_tmp = time.time()
-            stats_info = pcap2sessions_statistic(os.path.join(input_dir, file))
+            stats_info = pcap2sessions_statistic_with_pcapreader_scapy(os.path.join(input_dir, file))
             print('%d/%d => %s takes %.2f(s)\n' % (i, len(file_lst), file, time.time() - st_tmp),flush=True)
             line_str = '%d/%d => %s takes %.2f(s) => ' % (
                 i, len(file_lst), file, time.time() - st_tmp) + '%s\n' % stats_info
