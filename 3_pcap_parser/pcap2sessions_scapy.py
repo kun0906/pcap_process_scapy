@@ -42,7 +42,7 @@ import time
 
 import numpy
 from PIL import Image
-from scapy.all import rdpcap
+from scapy.all import rdpcap, PcapReader
 import functools
 print = functools.partial(print, flush=True)
 
@@ -65,19 +65,19 @@ def save_png(output_name='five_tuple.png', data=b'', width=28):
     return output_name
 
 
-def pcap2flows(input_file, output_dir='../2_flows_data'):
+def pcap2flows(input_f, output_dir='../2_flows_data'):
     """
         flow is based on five tuple, howerver, there is direction between srcIP and dstIP.
             srcIP->dstIP and dstIP->srcIP are recognized as different flow.
 
-    :param input_file:
+    :param input_f:
     :param output_dir:
     :return:
     """
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    file_prefix = os.path.split(input_file)[-1].split('.')[0]
-    data = rdpcap(input_file)
+    file_prefix = os.path.split(input_f)[-1].split('.')[0]
+    data = rdpcap(input_f)
     data.stats
     sess = data.sessions()  # can achieve flows in default, not sessions
     others_pkts = 0
@@ -113,10 +113,10 @@ def get_protocol(pkt):
     return prtl
 
 
-def pcap2sessions(input_file, output_dir='../2_sessions_data', layer='L7'):
+def pcap2sessions(input_f, output_dir='../2_sessions_data', layer='L7'):
     """
 
-    :param input_file:
+    :param input_f:
     :param output_dir:
     :param layer: achieve 'L3-L7' or only 'L7' or 'AllLyers' data
             'L3-L7': IP+payload
@@ -127,8 +127,8 @@ def pcap2sessions(input_file, output_dir='../2_sessions_data', layer='L7'):
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    file_prefix = os.path.split(input_file)[-1].split('.')[0]
-    pkts = rdpcap(input_file)
+    file_prefix = os.path.split(input_f)[-1].split('.')[0]
+    pkts = rdpcap(input_f)
 
     others_pkts = 0
     streams_dict = {}
@@ -189,11 +189,11 @@ def pcap2sessions(input_file, output_dir='../2_sessions_data', layer='L7'):
     return output_dir
 
 
-def pcap2sessions_forward_backward(input_file, output_dir=''):
+def pcap2sessions_forward_backward(input_f, output_dir=''):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    file_prefix = os.path.split(input_file)[-1].split('.')[0]
-    pkts = rdpcap(input_file)
+    file_prefix = os.path.split(input_f)[-1].split('.')[0]
+    pkts = rdpcap(input_f)
 
     # data.stats
     sess = pkts.sessions()  # session based on direction, that is flow
@@ -285,10 +285,27 @@ def count_sess_size(sess_dict):
     return res_dict
 
 
-def pcap2sessions_statistic(input_file):
+def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
     """
         achieve the statistic of full sessions in pcap after removing uncompleted TCP sessions
         There is no process on UDP sessions
+
+
+        Note:
+            pkts_lst = rdpcap(input_f)  # this will read all packets in memory at once.
+            changed  to :
+            There are 2 classes:
+                PcapReader - decodes all packets immediately
+                RawPcapReader - does not decode packets
+
+                Both of them have iterator interface (which I fixed in latest commit). So you can write in your case:
+
+                with PcapReader('file.pcap') as pr:
+                  for p in pr:
+                    ...do something with a packet p...
+
+            reference:
+                https://github.com/phaethon/kamene/issues/7
 
         flags in scapy
          flags = {
@@ -301,14 +318,15 @@ def pcap2sessions_statistic(input_file):
         'E': 'ECE',
         'C': 'CWR',
     }
-    :param input_file:
+    :param input_f:
     :return:
     """
     st = time.time()
-    print('process ... \'%s\'' % input_file,flush=True)
-    # Step 1. read from pcap and return a list of packets
+    print('process ... \'%s\'' % input_f,flush=True)
+    # Step 1. read from pcap and do not return a list of packets
     try:
-        pkts_lst = rdpcap(input_file)  # this will read all packets in memory at once.
+        # pkts_lst = rdpcap(input_f)  # this will read all packets in memory at once.
+        myreader = PcapReader(input_f)
     except MemoryError as me:
         print('memory error ', me)
         return -1
@@ -319,16 +337,16 @@ def pcap2sessions_statistic(input_file):
         print('other exceptions')
         return -10
 
+    # Step 2. achieve all the session in pcap.
     # data.stats
-    print('%s info is %s' % (input_file, pkts_lst))
     pkts_stats = {'non_Ether_pkts': 0, 'non_IPv4_pkts': 0, 'non_TCP_UDP_pkts': 0, 'TCP_pkts': 0,
                   'UDP_pkts': 0}
-    print('packet info:"srcIP:srcPort-dstIP:dstPort-prtcl" + IP_payload')
-
-    # Step 2. achieve all the session in pcap.
     cnt = 0
     sess_dict = {}
-    for pkt in pkts_lst:
+    while True:
+        pkt = myreader.read_packet()
+        if pkt is None:
+            break
         if pkt.name == "Ethernet":
             if pkt.payload.name.upper() in ['IP', 'IPV4']:
                 if pkt.payload.payload.name.upper() in ["TCP", "UDP"]:
@@ -353,6 +371,10 @@ def pcap2sessions_statistic(input_file):
                 pkts_stats['non_IPv4_pkts'] += 1
         else:
             pkts_stats['non_Ether_pkts'] += 1
+
+    # data.stats
+    # print('%s info is %s' % (input_f, pkts_lst))
+    print('packet info:"srcIP:srcPort-dstIP:dstPort-prtcl" + IP_payload')
 
     # Step 3. achieve all full session in sess_dict.
     full_sess_dict = {}
@@ -410,7 +432,7 @@ def pcap2sessions_statistic(input_file):
             pass
     print('pkts_stats is ', pkts_stats)
     print('Number of sessions(TCP/UDP) in %s is %d, number of full session(TCP/UDP) is %d' % (
-        input_file, len(sess_dict.keys()), len(full_sess_dict.keys())))
+        input_f, len(sess_dict.keys()), len(full_sess_dict.keys())))
     print('all_sess_dict:', count_protocls(sess_dict), '\nfull_sess_dict:', count_protocls(full_sess_dict))
 
     all_stats_dict = {}
@@ -425,7 +447,7 @@ def pcap2sessions_statistic(input_file):
 
 
 # this function is deprected about using rdpcap() in scapy
-def pcap2sessions_statistic(input_file):
+def pcap2sessions_statistic(input_f):
     """
         achieve the statistic of full sessions in pcap after removing uncompleted TCP sessions
         There is no process on UDP sessions
@@ -441,14 +463,15 @@ def pcap2sessions_statistic(input_file):
         'E': 'ECE',
         'C': 'CWR',
     }
-    :param input_file:
+    :param input_f:
     :return:
     """
     st = time.time()
-    print('process ... \'%s\'' % input_file,flush=True)
+    print('process ... \'%s\'' % input_f,flush=True)
     # Step 1. read from pcap and return a list of packets
     try:
-        pkts_lst = rdpcap(input_file)  # this will read all packets in memory at once.
+        # pkts_lst = rdpcap(input_f)  # this will read all packets in memory at once.
+        pkts_lst = ''   # not implement
     except MemoryError as me:
         print('memory error ', me)
         return -1
@@ -460,7 +483,7 @@ def pcap2sessions_statistic(input_file):
         return -10
 
     # data.stats
-    print('%s info is %s' % (input_file, pkts_lst))
+    print('%s info is %s' % (input_f, pkts_lst))
     pkts_stats = {'non_Ether_pkts': 0, 'non_IPv4_pkts': 0, 'non_TCP_UDP_pkts': 0, 'TCP_pkts': 0,
                   'UDP_pkts': 0}
     print('packet info:"srcIP:srcPort-dstIP:dstPort-prtcl" + IP_payload')
@@ -550,7 +573,7 @@ def pcap2sessions_statistic(input_file):
             pass
     print('pkts_stats is ', pkts_stats)
     print('Number of sessions(TCP/UDP) in %s is %d, number of full session(TCP/UDP) is %d' % (
-        input_file, len(sess_dict.keys()), len(full_sess_dict.keys())))
+        input_f, len(sess_dict.keys()), len(full_sess_dict.keys())))
     print('all_sess_dict:', count_protocls(sess_dict), '\nfull_sess_dict:', count_protocls(full_sess_dict))
 
     all_stats_dict = {}
@@ -640,17 +663,17 @@ def parse_params():
 
 
 if __name__ == '__main__':
-    # input_file = '../1_pcaps_data/UDP.pcap'
-    # input_file = '../1_pcaps_data/aim_chat_3a.pcap'
-    # pcap2sessions_statistic(input_file)
+    # input_f = '../1_pcaps_data/UDP.pcap'
+    # input_f = '../1_pcaps_data/aim_chat_3a.pcap'
+    # pcap2sessions_statistic(input_f)
 
     input_dir = '../1_pcaps_data'
     args = parse_params()
     print(args)
     achieve_stats_info_for_dir(input_dir=args['input_dir'], out_file=args['out_file'])
 
-    # pcap2sessions(input_file)
-    # pcap2flows(input_file)
+    # pcap2sessions(input_f)
+    # pcap2flows(input_f)
 
     # input_dir = '../1_pcaps_data/VPN-Hangout'
     # output_dir= '../2_sessions_data'
