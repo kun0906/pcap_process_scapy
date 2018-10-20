@@ -349,12 +349,15 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
     cnt = 0
     sess_dict = {}
     first_print_flg = True
-    pkts_cnt = 0
+    max_pkts_cnt = 1
     while True:
         pkt = myreader.read_packet()
-        if pkt is None or pkts_cnt > 1000:
+        if pkt is None:
             break
-        pkts_cnt += 1
+        if max_pkts_cnt > 100000:
+            print('\'%s\' includes more than %d packets and in this time just process the first %d packets. Please split it firstly and do again.' % (input_f, max_pkts_cnt))
+            break
+        max_pkts_cnt += 1
         # step 1. parse "Ethernet" firstly
         if pkt.name == "Ethernet":
             if first_print_flg:
