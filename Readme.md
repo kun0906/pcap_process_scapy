@@ -1,4 +1,4 @@
-Purpose:
+# Purpose:
     Achieve Streams information by scapy.
     TCP and UDP streams in this source are based on five tuple <srcIP:srcPort<->dstIP:dstPort-protocol>, ignore the direction.
     srcIP->dstIP and dstIP->srcIP are different flow, but they belongs to the same stream (bi-directional flows).
