@@ -45,7 +45,7 @@ from PIL import Image
 from scapy import packet
 from scapy.all import rdpcap, PcapReader, sniff
 from scapy.layers.inet import IP
-from scapy.layers.l2 import Raw
+from sys_path_export import *  # it is no need to do in IDE environment, however, it must be done in shell/command environment
 import functools
 print = functools.partial(print, flush=True)
 
@@ -329,7 +329,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
     # Step 1. read from pcap and do not return a list of packets
     try:
         # pkts_lst = rdpcap(input_f)  # this will read all packets in memory at once, please don't use it directly.
-        # input_f  = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/1_pcaps_data/Skype_Voice_Workstation_20000pkts.pcap'  #
+        # input_f  = '../1_pcaps_data/vpn_hangouts_audio2.pcap'  #
         # input_f = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/1_pcaps_data/aim_chat_3a.pcap'  #
         myreader = PcapReader(input_f)  # iterator, please use it to process large file, such as more than 4 GB
     except MemoryError as me:
@@ -352,7 +352,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
     pkts_cnt = 0
     while True:
         pkt = myreader.read_packet()
-        if pkt is None or pkts_cnt < 1000:
+        if pkt is None or pkts_cnt > 1000:
             break
         pkts_cnt += 1
         # step 1. parse "Ethernet" firstly
