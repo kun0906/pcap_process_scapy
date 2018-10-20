@@ -17,7 +17,8 @@
 
 [same session]:https://stackoverflow.com/questions/6076897/follow-tcp-stream-where-does-field-stream-index-come-from
 
-    1. https://stackoverflow.com/questions/6076897/follow-tcp-stream-where-does-field-stream-index-come-from
+[1]. [https://stackoverflow.com/questions/6076897/follow-tcp-stream-where-does-field-stream-index-come-from]
+    
     2. https://osqa-ask.wireshark.org/questions/59467/tcp-stream-index-question
     3. https://blog.packet-foo.com/2015/03/tcp-analysis-and-the-five-tuple/
     4. https://www.netresec.com/?page=SplitCap
