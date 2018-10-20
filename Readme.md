@@ -4,7 +4,7 @@
   - TCP and UDP streams in this source are based on five tuple <srcIP:srcPort<->dstIP:dstPort-protocol>, ignore the direction.
   - srcIP->dstIP and dstIP->srcIP are different flow, but they belongs to the same stream (bi-directional flows).
   - all packets with the same 5-touple (source host, destination host, source port, destination port, transport protocol)
-  - regardless of packet direction are considered part of the same session link [1].
+  - regardless of packet direction are considered part of the same session].
 
 ## Note
     1) the stream's calculation is not based on TCP 3 handshake, only on five tuple, so there will be problems if multiple TCP streams have the same tuple.
@@ -15,7 +15,8 @@
 
 ## References
 
-[1]:https://stackoverflow.com/questions/6076897/follow-tcp-stream-where-does-field-stream-index-come-from
+[same session]:https://stackoverflow.com/questions/6076897/follow-tcp-stream-where-does-field-stream-index-come-from
+
     1. https://stackoverflow.com/questions/6076897/follow-tcp-stream-where-does-field-stream-index-come-from
     2. https://osqa-ask.wireshark.org/questions/59467/tcp-stream-index-question
     3. https://blog.packet-foo.com/2015/03/tcp-analysis-and-the-five-tuple/
