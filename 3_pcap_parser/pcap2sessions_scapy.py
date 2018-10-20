@@ -329,7 +329,8 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
     # Step 1. read from pcap and do not return a list of packets
     try:
         # pkts_lst = rdpcap(input_f)  # this will read all packets in memory at once, please don't use it directly.
-        #  input_f  = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/1_pcaps_data/vpn_hangouts_audio2.pcap'  #
+        # input_f  = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/1_pcaps_data/Skype_Voice_Workstation_20000pkts.pcap'  #
+        # input_f = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/1_pcaps_data/aim_chat_3a.pcap'  #
         myreader = PcapReader(input_f)  # iterator, please use it to process large file, such as more than 4 GB
     except MemoryError as me:
         print('memory error ', me)
@@ -348,11 +349,12 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
     cnt = 0
     sess_dict = {}
     first_print_flg = True
+    pkts_cnt = 0
     while True:
         pkt = myreader.read_packet()
-        if pkt is None:
+        if pkt is None or pkts_cnt < 1000:
             break
-
+        pkts_cnt += 1
         # step 1. parse "Ethernet" firstly
         if pkt.name == "Ethernet":
             if first_print_flg:

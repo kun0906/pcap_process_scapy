@@ -10,10 +10,10 @@
 #SBATCH --cpus-per-task=8
 #
 # expect the job to finish within 5 hours. If it takes longer than 5 hours, SLURM can kill it
-#SBATCH --time=48:00:00
+#SBATCH --time=60:00:00
 #
 # expect the job to use no more than 24GB of memory
-#SBATCH --mem=200GB
+#SBATCH --mem=100GB
 #
 # once job ends, send me an email
 #SBATCH --mail-type=END
