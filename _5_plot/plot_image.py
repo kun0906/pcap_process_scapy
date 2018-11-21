@@ -67,6 +67,7 @@ def process_pcap(input_file='.pcap', image_width=28, output_dir='./data'):
         # print(f"len(line_bytes)={len(line_bytes)}, ((height,width)={len(line_bytes)//image_width}x{image_width}), {line_bytes}")
         save_payload_to_image(line_bytes, image_width=image_width, output_name=output_name)
 
+
 if __name__ == '__main__':
     input_file = '../1_pcaps_data/aim_chat_3a.pcap'
     # pcap2sessions_statistic_with_pcapreader_scapy_improved(input_file)
