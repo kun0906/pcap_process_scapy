@@ -45,7 +45,7 @@ from PIL import Image
 from scapy import packet
 from scapy.all import rdpcap, PcapReader, sniff
 from scapy.layers.inet import IP
-from sys_path_export import *  # it is no need to do in IDE environment, however, it must be done in shell/command environment
+from .sys_path_export import *  # it is no need to do in IDE environment, however, it must be done in shell/command environment
 import functools
 print = functools.partial(print, flush=True)
 
