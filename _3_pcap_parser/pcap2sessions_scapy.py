@@ -39,6 +39,7 @@ import argparse
 import binascii
 import os
 import time
+from collections import OrderedDict
 
 import numpy
 from PIL import Image
@@ -234,7 +235,7 @@ def pcap2sessions_dir(input_dir, output_dir, layer='L7'):
         pcap2sessions(file, output_file_dir, layer=layer)
 
 
-def save_session_to_dict(k='five_tuple', v='pkt', sess_dict={}):
+def save_session_to_dict(k='five_tuple', v='pkt', sess_dict=OrderedDict()):
     k_src2dst = k
     # swap src and dst
     tmp_lst = k.split('-')
@@ -350,7 +351,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
     pkts_stats = {'non_Ether_IPv4_pkts': 0, 'non_IPv4_pkts': 0, 'non_TCP_UDP_pkts': 0, 'TCP_pkts': 0,
                   'UDP_pkts': 0}
     cnt = 0
-    sess_dict = {}
+    sess_dict = OrderedDict()
     first_print_flg = True
     max_pkts_cnt = 1
     while True:
@@ -422,7 +423,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
     print('packet info:"srcIP:srcPort-dstIP:dstPort-prtcl" + IP_payload')
 
     # Step 3. achieve all full session in sess_dict.
-    full_sess_dict = {}
+    full_sess_dict = OrderedDict()
     for k, v in sess_dict.items():   # all pkts in sess_dict without Ethernet headers and tails
         prtl = k.split('-')[-1]
         if prtl == "TCP":
@@ -481,7 +482,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
         input_f, len(sess_dict.keys()), len(full_sess_dict.keys())))
     print('all_sess_dict:', count_protocls(sess_dict), '\nfull_sess_dict:', count_protocls(full_sess_dict))
 
-    all_stats_dict = {}
+    all_stats_dict = OrderedDict()
     all_stats_dict['pkts_stats'] = pkts_stats
     all_stats_dict['all_sess'] = count_protocls(sess_dict)
     all_stats_dict['full_sess'] = count_protocls(full_sess_dict)
@@ -489,7 +490,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
 
     print(all_stats_dict)
 
-    return all_stats_dict
+    return all_stats_dict, sess_dict
 
 
 def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
