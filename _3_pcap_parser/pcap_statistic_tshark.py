@@ -157,6 +157,7 @@ r"""
 """
 import os
 import subprocess
+from collections import Counter
 
 
 def ip_statistic(in_dir):
@@ -180,7 +181,7 @@ def ip_statistic(in_dir):
         in_file = in_dir
         cmd = f'/usr/bin/tshark -nr "{in_file}" -T fields -e ip.src | sort -u'
         print(cmd)
-        results.append(subprocess.run(cmd, stdout=subprocess.PIPE).stdout.decode('utf-8'))
+        results.append([0, in_file, subprocess.run(cmd, stdout=subprocess.PIPE, shell=True).stdout.decode('utf-8')])
 
     return results
 
@@ -207,10 +208,36 @@ def protocol_statistic(in_dir):
         in_file = in_dir
         cmd = f'/usr/bin/tshark -nr "{in_file}" -q -z io,phs'
         print(cmd)
-        results.append(subprocess.run(cmd, stdout=subprocess.PIPE).stdout.decode('utf-8'))
+        results.append([0, in_file, subprocess.run(cmd, stdout=subprocess.PIPE, shell=True).stdout.decode('utf-8')])
 
     return results
 
+
+def port_statistic(in_dir):
+    results = []
+    if os.path.isdir(in_dir):
+        files_lst = sorted(os.listdir(in_dir))
+        for idx, file in enumerate(files_lst):
+            in_file = os.path.join(os.path.abspath(in_dir), file)
+            # cmd =['/usr/bin/tshark', f' -nr \'{in_file}\' -z io,phs']
+            # cmd = f'tshark -nr "{in_file}" -q -z conv,tcp -z conv,udp'
+            cmd =f'tshark -nr "{in_file}" -e tcp.port -T fields'
+            # cmd = f'/usr/bin/tshark -nr \'{in_file}\' -q -z io,stat,1'
+            print(f'{idx}/{len(files_lst)}, {cmd}')
+            if ('.pcap' in file) or ('.pcapng' in file):
+                result = subprocess.run(cmd, stdout=subprocess.PIPE, shell=True).stdout.decode('utf-8')
+            else:
+                result = ''
+            results.append([idx, in_file, result])
+            print(result)
+    else:
+        in_file = in_dir
+        # cmd = f'tshark -nr "{in_file}" -q -z conv,tcp -z conv,udp'
+        cmd = f'tshark -nr "{in_file}" -e tcp.port -T fields'
+        print(cmd)
+        results.append([0,in_file,subprocess.run(cmd, stdout=subprocess.PIPE,shell=True).stdout.decode('utf-8')])
+
+    return results
 
 def save_data(data_lst, out_file='./out.txt'):
     with open(out_file, 'w')as out_hdl:
@@ -231,6 +258,23 @@ def get_first_col(data):
 
     return res_lst
 
+def port_save(data):
+    line_arr = data.split()
+    # arr = list(map(lambda x, x.split(','), line_arr))
+    lst = []
+    for v in line_arr:
+        sport, dport=v.split(',')
+        lst.append(sport)
+        lst.append(dport)
+
+    res=Counter(lst)
+    res=[(k, res[k]) for k in sorted(res, key=res.get, reverse=True)]
+    line = ''
+    for k,v in res:
+        line += k +':'+str(v) +'\n'
+    # print(res)
+
+    return [line]
 
 def all_stat(data_lst, out_file='./out.txt', ptype='ip_stat'):
     res_lst = []
@@ -242,6 +286,8 @@ def all_stat(data_lst, out_file='./out.txt', ptype='ip_stat'):
                 line_lst = get_first_col(data)
             elif ptype == 'prtl_stat':
                 line_lst = get_first_col(data)
+            elif ptype == 'port_stat':
+                line_lst = port_save(data)
             else:
                 pass
             res_lst.extend(line_lst)
@@ -253,12 +299,18 @@ def all_stat(data_lst, out_file='./out.txt', ptype='ip_stat'):
 
 
 if __name__ == '__main__':
-    in_dir = '../1_pcaps_data/'
-    results = protocol_statistic(in_dir)
-    # save_data(results,out_file='protocol_stat.txt')
-    prtl_stat = all_stat(results, out_file='protocol_stat_summary.txt', ptype='prtl_stat')
-    print(f'prtl_stat:{prtl_stat}')
-    results = ip_statistic(in_dir)
-    save_data(results, out_file='ip_stat.txt')
-    ip_stat = all_stat(results, out_file='protocol_stat_summary.txt', ptype='ip_stat')
-    print(f'ip_stat:{ip_stat}')
+    in_dir = '../1_pcaps_data/aim_chat_3a.pcap'
+    in_dir = '../1_pcaps_data'
+    # results = protocol_statistic(in_dir)
+    # # save_data(results,out_file='protocol_stat.txt')
+    # prtl_stat = all_stat(results, out_file='protocol_stat_summary.txt', ptype='prtl_stat')
+    # print(f'prtl_stat:{prtl_stat}')
+    # results = ip_statistic(in_dir)
+    # save_data(results, out_file='ip_stat.txt')
+    # ip_stat = all_stat(results, out_file='protocol_stat_summary.txt', ptype='ip_stat')
+    # print(f'ip_stat:{ip_stat}')
+    results = port_statistic(in_dir)
+    # print(f'results={results}')
+    save_data(results, out_file='port_stat.txt')
+    port_stat = all_stat(results, out_file='port_stat_summary.txt', ptype='port_stat')
+    print(f'port_stat:{port_stat}')

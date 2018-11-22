@@ -85,7 +85,7 @@ def process_pcap(input_file='.pcap', image_width=28, output_dir='./data',filter=
         for pkt in v:  # pkt is IP pakcet, no ethernet header
             line_bytes += pkt.payload.payload.original
         # payload_1d = list(map(lambda x:int(x,16), line_str.split('\\x')))  # change hex to decimal
-        output_name = os.path.join(output_dir, k + f'-({len(line_bytes)//image_width}x{image_width}).png')
+        output_name = os.path.join(output_dir, k + f'-({len(line_bytes)//image_width}x{len(line_bytes)}).png')
         print(f"idx={idx}, output_name:{output_name}")
         # print(f"len(line_bytes)={len(line_bytes)}, ((height,width)={len(line_bytes)//image_width}x{image_width}), {line_bytes}")
         # save_payload_to_image(line_bytes, image_width=image_width,output_name=output_name)
