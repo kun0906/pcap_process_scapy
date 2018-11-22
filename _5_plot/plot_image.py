@@ -62,7 +62,7 @@ def is_filter(k, filter={'IPs':[],'ports':[]}):
     return False
 
 
-def process_pcap(input_file='.pcap', image_width=28, output_dir='./data',filter={'IPs':['0.0.0.0'],'ports':[53]}):
+def process_pcap(input_file='.pcap', image_width=28, output_dir='./data',filter={'IPs':['0.0.0.0','255.255.255.255'],'ports':[53]}):
     if not input_file.endswith('.pcap') and not input_file.endswith('.pcapng'):
         print(f'Wrong input file type: {input_file}, input must be \'pcap or pcapng\'.')
         return 0
