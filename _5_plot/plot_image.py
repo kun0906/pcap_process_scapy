@@ -89,9 +89,9 @@ def main(input_file='', output_dir='./data'):
     if os.path.isdir(input_file):
         for file in sorted(os.listdir(input_file)):
             print(f'file={os.path.join(input_file,file)}')
-            process_pcap(os.path.join(input_file,file),output_dir=os.path.join(output_dir, os.path.split(file)[0]))
+            process_pcap(os.path.join(input_file,file),output_dir=os.path.join(output_dir, os.path.split(file)[1].split('.')[0]))
     else:
-        process_pcap(input_file,output_dir=os.path.join(output_dir, os.path.split(input_file)[0]))
+        process_pcap(input_file,output_dir=os.path.join(output_dir, os.path.split(input_file)[1].split('.')[0]))
 
 
 
