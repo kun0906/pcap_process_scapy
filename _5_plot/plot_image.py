@@ -48,8 +48,21 @@ def getMatrixfrom_pcap(filename, width):
     fh = numpy.uint8(fh)
     return fh
 
+def is_filter(k, filter={'IPs':[],'ports':[]}):
+    IPs = filter['IPs']
+    for ip in filter['IPs']:
+        if ip+':' in k:
+            return True
 
-def process_pcap(input_file='.pcap', image_width=28, output_dir='./data'):
+    for port in filter['ports']:
+        # if port in k:
+        if ':'+str(port)+'-' in k:  # 10.152.152.11:24007-5.34.22.172:25806-UDP-(3x28).png
+            return True
+
+    return False
+
+
+def process_pcap(input_file='.pcap', image_width=28, output_dir='./data',filter={'IPs':['0.0.0.0'],'ports':[53]}):
     if not input_file.endswith('.pcap') and not input_file.endswith('.pcapng'):
         print(f'Wrong input file type: {input_file}, input must be \'pcap or pcapng\'.')
         return 0
@@ -61,6 +74,8 @@ def process_pcap(input_file='.pcap', image_width=28, output_dir='./data'):
         os.makedirs(output_dir)
 
     for idx, (k, v) in enumerate(sess_dict.items()):
+        if is_filter(k,filter):
+            continue
         line_bytes = b''
         for pkt in v:  # pkt is IP pakcet, no ethernet header
             line_bytes += pkt.payload.payload.original
@@ -76,11 +91,11 @@ def main(input_file='', output_dir='./data'):
             print(f'file={os.path.join(input_file,file)}')
             process_pcap(os.path.join(input_file,file),output_dir=os.path.join(output_dir, os.path.split(file)[0]))
     else:
-        process_pcap(input_file,output_dir=output_dir)
+        process_pcap(input_file,output_dir=os.path.join(output_dir, os.path.split(input_file)[0]))
 
 
 if __name__ == '__main__':
     input_file = '../1_pcaps_data/aim_chat_3a.pcap'
     # pcap2sessions_statistic_with_pcapreader_scapy_improved(input_file)
     # process_pcap(input_file, output_dir='../data/aim_chat_3a')
-    main(input_file='../1_pcaps_data',output_dir='../data/aim_chat_3a')
+    main(input_file='../1_pcaps_data',output_dir='../data/')
