@@ -94,8 +94,23 @@ def main(input_file='', output_dir='./data'):
         process_pcap(input_file,output_dir=os.path.join(output_dir, os.path.split(input_file)[0]))
 
 
+
+def parse_params():
+    parser = argparse.ArgumentParser(prog='pcap2image')
+    parser.add_argument('-i', '--input_dir', type=str, dest='input_dir', help='directroy includes *.pcaps or *.pcapngs',
+                        default='../1_pcaps_data', required=True)  # '-i' short name, '--input_dir' full name
+    parser.add_argument('-o', '--output_dir', dest='output_dir', help="the images",
+                        default='./data')
+    args = vars(parser.parse_args())
+
+    return args
+
+
 if __name__ == '__main__':
-    input_file = '../1_pcaps_data/aim_chat_3a.pcap'
-    # pcap2sessions_statistic_with_pcapreader_scapy_improved(input_file)
-    # process_pcap(input_file, output_dir='../data/aim_chat_3a')
-    main(input_file='../1_pcaps_data',output_dir='../data/')
+    # input_file = '../1_pcaps_data/aim_chat_3a.pcap'
+    # # pcap2sessions_statistic_with_pcapreader_scapy_improved(input_file)
+    # # process_pcap(input_file, output_dir='../data/aim_chat_3a')
+    # main(input_file='../1_pcaps_data',output_dir='../data/')
+    args = parse_params()
+    print(args)
+    main(input_file=args['input_dir'], output_dir=args['output_dir'])
