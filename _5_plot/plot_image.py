@@ -50,6 +50,9 @@ def getMatrixfrom_pcap(filename, width):
 
 
 def process_pcap(input_file='.pcap', image_width=28, output_dir='./data'):
+    if not input_file.endswith('.pcap') and not input_file.endswith('.pcapng'):
+        print(f'Wrong input file type: {input_file}, input must be \'pcap or pcapng\'.')
+        return 0
     all_stats_dict, sess_dict = pcap2sessions_statistic_with_pcapreader_scapy_improved(input_file)
     print(f"all_stats_dict:{all_stats_dict}")
     # print(f"sess_dict:{sess_dict}")   # there will be huge information, please do print it out.
@@ -67,8 +70,17 @@ def process_pcap(input_file='.pcap', image_width=28, output_dir='./data'):
         # print(f"len(line_bytes)={len(line_bytes)}, ((height,width)={len(line_bytes)//image_width}x{image_width}), {line_bytes}")
         save_payload_to_image(line_bytes, image_width=image_width, output_name=output_name)
 
+def main(input_file='', output_dir='./data'):
+    if os.path.isdir(input_file):
+        for file in sorted(os.listdir(input_file)):
+            print(f'file={os.path.join(input_file,file)}')
+            process_pcap(os.path.join(input_file,file),output_dir=os.path.join(output_dir, os.path.split(file)[0]))
+    else:
+        process_pcap(input_file,output_dir=output_dir)
+
 
 if __name__ == '__main__':
     input_file = '../1_pcaps_data/aim_chat_3a.pcap'
     # pcap2sessions_statistic_with_pcapreader_scapy_improved(input_file)
-    process_pcap(input_file, output_dir='../data/aim_chat_3a')
+    # process_pcap(input_file, output_dir='../data/aim_chat_3a')
+    main(input_file='../1_pcaps_data',output_dir='../data/aim_chat_3a')
