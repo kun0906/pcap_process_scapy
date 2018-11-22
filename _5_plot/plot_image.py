@@ -5,6 +5,11 @@ r"""
 """
 
 import errno
+import os, sys
+
+# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.abspath('../'))  # add 'parent path' to system path
+print(sys.path)
 
 from _3_pcap_parser.pcap2sessions_scapy import *
 
@@ -62,7 +67,7 @@ def is_filter(k, filter={'IPs':[],'ports':[]}):
     return False
 
 
-def process_pcap(input_file='.pcap', image_width=28, output_dir='./data',filter={'IPs':['0.0.0.0','255.255.255.255'],'ports':[53]}):
+def process_pcap(input_file='.pcap', image_width=28, output_dir='./data',filter={'IPs':['0.0.0.0','255.255.255.255','224.0.0.252','131.202.243.255'],'ports':[53]}):
     if not input_file.endswith('.pcap') and not input_file.endswith('.pcapng'):
         print(f'Wrong input file type: {input_file}, input must be \'pcap or pcapng\'.')
         return 0
@@ -83,7 +88,8 @@ def process_pcap(input_file='.pcap', image_width=28, output_dir='./data',filter=
         output_name = os.path.join(output_dir, k + f'-({len(line_bytes)//image_width}x{image_width}).png')
         print(f"idx={idx}, output_name:{output_name}")
         # print(f"len(line_bytes)={len(line_bytes)}, ((height,width)={len(line_bytes)//image_width}x{image_width}), {line_bytes}")
-        save_payload_to_image(line_bytes, image_width=image_width, output_name=output_name)
+        # save_payload_to_image(line_bytes, image_width=image_width,output_name=output_name)
+        save_payload_to_image(line_bytes, image_width=image_width, output_name=output_name.replace(':','-')) # for window
 
 def main(input_file='', output_dir='./data'):
     if os.path.isdir(input_file):
