@@ -293,6 +293,12 @@ def all_stat(data_lst, out_file='./out.txt', ptype='ip_stat'):
             res_lst.extend(line_lst)
             line = ','.join(line_lst)
             out_hdl.write(line)
+
+
+
+
+
+
     res_lst = sorted(set(res_lst))
 
     return res_lst

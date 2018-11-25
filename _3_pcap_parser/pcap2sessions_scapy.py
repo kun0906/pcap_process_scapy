@@ -358,7 +358,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
         pkt = myreader.read_packet()
         if pkt is None:
             break
-        if max_pkts_cnt >= 100000:
+        if max_pkts_cnt >= 30000:
             print('\'%s\' includes more than %d packets and in this time just process the first %d packets. Please split it firstly and do again.' % (input_f, max_pkts_cnt,max_pkts_cnt))
             break
         max_pkts_cnt += 1
@@ -490,7 +490,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
 
     print(all_stats_dict)
 
-    return all_stats_dict, sess_dict
+    return all_stats_dict, full_sess_dict
 
 
 def pcap2sessions_statistic_with_pcapreader_scapy(input_f):

@@ -67,25 +67,25 @@ def is_filter(k, filter={'IPs':[],'ports':[]}):
     return False
 
 
-def process_pcap(input_file='.pcap', image_width=28, output_dir='./data',filter={'IPs':['0.0.0.0','255.255.255.255','224.0.0.252','131.202.243.255'],'ports':[53]}):
+def process_pcap(input_file='.pcap', image_width=28, output_dir='./data',filter={'IPs':['0.0.0.0','255.255.255.255','224.0.0.252','131.202.243.255'],'ports':[53,5355,5353,1900,161,137,138,123,67,68]}):
     if not input_file.endswith('.pcap') and not input_file.endswith('.pcapng'):
         print(f'Wrong input file type: {input_file}, input must be \'pcap or pcapng\'.')
         return 0
-    all_stats_dict, sess_dict = pcap2sessions_statistic_with_pcapreader_scapy_improved(input_file)
+    all_stats_dict, full_sess_dict = pcap2sessions_statistic_with_pcapreader_scapy_improved(input_file)
     print(f"all_stats_dict:{all_stats_dict}")
     # print(f"sess_dict:{sess_dict}")   # there will be huge information, please do print it out.
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    for idx, (k, v) in enumerate(sess_dict.items()):
+    for idx, (k, v) in enumerate(full_sess_dict.items()):
         if is_filter(k,filter):
             continue
         line_bytes = b''
         for pkt in v:  # pkt is IP pakcet, no ethernet header
             line_bytes += pkt.payload.payload.original
         # payload_1d = list(map(lambda x:int(x,16), line_str.split('\\x')))  # change hex to decimal
-        output_name = os.path.join(output_dir, k + f'-({len(line_bytes)//image_width}x{len(line_bytes)}).png')
+        output_name = os.path.join(output_dir, k + f'-({len(line_bytes)//image_width}x{image_width}={len(line_bytes)}).png')
         print(f"idx={idx}, output_name:{output_name}")
         # print(f"len(line_bytes)={len(line_bytes)}, ((height,width)={len(line_bytes)//image_width}x{image_width}), {line_bytes}")
         # save_payload_to_image(line_bytes, image_width=image_width,output_name=output_name)
