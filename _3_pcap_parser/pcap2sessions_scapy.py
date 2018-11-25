@@ -434,6 +434,8 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
             full_session_flg = False
             i = -1
             TCP_start_flg = False
+            if k == '131.202.240.87:64716-131.202.6.26:13111-TCP':
+                print(f'k={k}, line_bytes={v}')
             for pkt in v:
                 i += 1
                 if len(v) < 5:  # tcp start (3 packets) + tcp finish (at least 2 packets)

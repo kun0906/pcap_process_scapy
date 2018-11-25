@@ -67,7 +67,7 @@ def is_filter(k, filter={'IPs':[],'ports':[]}):
     return False
 
 
-def process_pcap(input_file='.pcap', image_width=28, output_dir='./data',filter={'IPs':['0.0.0.0','255.255.255.255','224.0.0.252','131.202.243.255'],'ports':[53,5355,5353,1900,161,137,138,123,67,68]}):
+def process_pcap(input_file='.pcap', image_width=28, output_dir='./data',filter={'IPs':['0.0.0.0','255.255.255.255','224.0.0.252','131.202.243.255'],'ports':[53,5355,5353,1900,161,137,138,123,67,68,3478]}):
     if not input_file.endswith('.pcap') and not input_file.endswith('.pcapng'):
         print(f'Wrong input file type: {input_file}, input must be \'pcap or pcapng\'.')
         return 0
@@ -82,6 +82,8 @@ def process_pcap(input_file='.pcap', image_width=28, output_dir='./data',filter=
         if is_filter(k,filter):
             continue
         line_bytes = b''
+        if k == '131.202.240.87:49242-173.194.123.96:443-UDP':
+            print(f'k={k}, line_bytes={line_bytes}')
         for pkt in v:  # pkt is IP pakcet, no ethernet header
             line_bytes += pkt.payload.payload.original
         # payload_1d = list(map(lambda x:int(x,16), line_str.split('\\x')))  # change hex to decimal
