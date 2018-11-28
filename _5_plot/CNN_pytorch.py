@@ -30,6 +30,9 @@ def load_data(input_dir=''):
             data_dict['images'].append(np.array(Image.open(file_tmp)))
             data_dict['labels'].append(label)
 
+    data_dict['images'] = np.asarray(data_dict['images'], dtype=int)
+    data_dict['labels'] = np.asarray(data_dict['labels'], dtype=int)
+
     return data_dict
 
 
@@ -206,16 +209,17 @@ class SimpleCNN(torch.nn.Module):
             height = b_X.size()[1]
             width = b_X.size()[2]
             inputs = b_X.view(bth_len, 1, height, width)
+
             test_out_vals = self.forward(inputs)
             test_loss = self.criterion(test_out_vals.view(bth_len, self.n_classes), b_y.long().view(bth_len, ))
             test_loss_tmp += test_loss.data.item()
 
             test_preds = np.argmax(test_out_vals.view(bth_len, self.n_classes).detach().numpy(), axis=1)
-            # print(f"real_labels:{list(labels.view(labels.size()[0],).numpy())}")
-            print(f"{name}: preds:{test_preds}")
-            # if len(test_preds) != len(list(b_y.view(bth_len, ).numpy())):
-            #     print(len(test_preds), len(list(b_y.view(bth_len, ).numpy())))
-            #     continue
+            # # print(f"real_labels:{list(labels.view(labels.size()[0],).numpy())}")
+            # print(f"{name}: preds:{test_preds}")
+            # # if len(test_preds) != len(list(b_y.view(bth_len, ).numpy())):
+            # #     print(len(test_preds), len(list(b_y.view(bth_len, ).numpy())))
+            # #     continue
             if idx == 0:
                 cm = confusion_matrix(test_preds, b_y)
             else:
@@ -247,7 +251,7 @@ def plot_data(stats_dict):
     plt.show()
 
 
-def main():
+def main(n_epochs=100000):
     output_dir = '../categories'
     if not os.path.exists(output_dir):
         output_dir = divide_categories(input_dir='../images-full_sessions', output_dir=output_dir)
@@ -256,8 +260,9 @@ def main():
     train_set, test_set = split_train_test(dataset_dict['images'], dataset_dict['labels'], test_size=0.3,
                                            shuffle_flg=True)
     train_set, val_set = split_train_test(train_set[0], train_set[1], test_size=0.2, shuffle_flg=True)
+    print(f'train_set:{train_set[0].shape}, val_set:{val_set[0].shape}, test_set:{test_set[0].shape}')
 
-    cnn_mdl = SimpleCNN(n_classes=len(set(dataset_dict['labels'])))
+    cnn_mdl = SimpleCNN(n_epochs=n_epochs, n_classes=len(set(dataset_dict['labels'])))
     cnn_mdl.train(train_set=train_set, val_set=val_set)
     cnn_mdl.evaluate(test_set=test_set)
 
