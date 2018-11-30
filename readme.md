@@ -1,7 +1,8 @@
 # Requirements:
    > 1) python3 > 3.6
    > 2) scapy 
-   > 3) pytorch > 0.41
+   > 3) tshake/wireshake
+   > 4) pytorch > 0.41
     
 
 # Purpose
