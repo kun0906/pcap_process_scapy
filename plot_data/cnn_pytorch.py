@@ -271,7 +271,7 @@ class SimpleCNN(torch.nn.Module):
 
 def plot_data(stats_dict):
     """
-
+        show the data
     :param stats_dict:
     :return:
     """
