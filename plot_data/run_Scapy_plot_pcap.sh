@@ -37,4 +37,4 @@ pip3 install scapy
 
 #source py3.6.3/bin/activate /home/ky13/py3.6.3
 cd /scratch/ky13/Experiments/Pcap2Sessions_Scapy/_5_plot/
-python3 plot_image.py -i '../../VPN_NonVPN_2016_Dataset/' -o '../data'
+python3 plot_image.py -i '../../VPN_NonVPN_2016_Dataset/' -o '../input_data'

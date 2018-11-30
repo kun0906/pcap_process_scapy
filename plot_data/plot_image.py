@@ -5,13 +5,14 @@ r"""
 """
 
 import errno
-import os, sys
+import os
+import sys
 
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(os.path.abspath('../'))  # add 'parent path' to system path
 print(sys.path)
 
-from _3_pcap_parser.pcap2sessions_scapy import *
+from pcap_parser.pcap2sessions_scapy import *
 
 
 def mkdir_p(path):
@@ -67,7 +68,9 @@ def is_filter(k, filter={'IPs':[],'ports':[]}):
     return False
 
 
-def process_pcap(input_file='.pcap', image_width=28, output_dir='./data',filter={'IPs':['0.0.0.0','255.255.255.255','224.0.0.252','131.202.243.255'],'ports':[53,5355,5353,1900,161,137,138,123,67,68,3478]}):
+def process_pcap(input_file='.pcap', image_width=28, output_dir='./input_data',
+                 filter={'IPs': ['0.0.0.0', '255.255.255.255', '224.0.0.252', '131.202.243.255'],
+                         'ports': [53, 5355, 5353, 1900, 161, 137, 138, 123, 67, 68, 3478]}):
     if not input_file.endswith('.pcap') and not input_file.endswith('.pcapng'):
         print(f'Wrong input file type: {input_file}, input must be \'pcap or pcapng\'.')
         return 0
@@ -93,7 +96,8 @@ def process_pcap(input_file='.pcap', image_width=28, output_dir='./data',filter=
         # save_payload_to_image(line_bytes, image_width=image_width,output_name=output_name)
         save_payload_to_image(line_bytes, image_width=image_width, output_name=output_name.replace(':','-')) # for window
 
-def main(input_file='', output_dir='./data'):
+
+def main(input_file='', output_dir='./input_data'):
     if os.path.isdir(input_file):
         # for file in sorted(os.listdir(input_file)):
         # os.listdir(input_file).sort(key=lambda x: x.lower()) # return Nonetype
@@ -108,19 +112,19 @@ def main(input_file='', output_dir='./data'):
 def parse_params():
     parser = argparse.ArgumentParser(prog='pcap2image')
     parser.add_argument('-i', '--input_dir', type=str, dest='input_dir', help='directroy includes *.pcaps or *.pcapngs',
-                        default='../1_pcaps_data', required=True)  # '-i' short name, '--input_dir' full name
+                        default='../pcaps_data', required=True)  # '-i' short name, '--input_dir' full name
     parser.add_argument('-o', '--output_dir', dest='output_dir', help="the images",
-                        default='./data')
+                        default='./input_data')
     args = vars(parser.parse_args())
 
     return args
 
 
 if __name__ == '__main__':
-    # input_file = '../1_pcaps_data/aim_chat_3a.pcap'
+    # input_file = '../pcaps_data/aim_chat_3a.pcap'
     # # pcap2sessions_statistic_with_pcapreader_scapy_improved(input_file)
-    # # process_pcap(input_file, output_dir='../data/aim_chat_3a')
-    # main(input_file='../1_pcaps_data',output_dir='../data/')
+    # # process_pcap(input_file, output_dir='../input_data/aim_chat_3a')
+    # main(input_file='../pcaps_data',output_dir='../input_data/')
     args = parse_params()
     print(args)
     main(input_file=args['input_dir'], output_dir=args['output_dir'])

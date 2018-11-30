@@ -77,8 +77,8 @@ def calculate_sessions_size(input_f):
         print('normal_sessions:',normal_sessions_size)
 
 if __name__ == '__main__':
-    # input_f = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/1_pcaps_data/outlog_9508115_4294967294_20181023.out'
+    # input_f = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/pcaps_data/outlog_9508115_4294967294_20181023.out'
     # parse_result_log(input_f)
 
-    input_f = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/1_pcaps_data/all_session_dict'
+    input_f = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/pcaps_data/all_session_dict'
     calculate_sessions_size(input_f)

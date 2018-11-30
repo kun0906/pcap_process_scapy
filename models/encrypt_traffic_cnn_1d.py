@@ -11,7 +11,7 @@ import time
 
 # start tensorflow interactiveSession
 import tensorflow as tf
-# load MNIST data
+# load MNIST input_data
 # from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.examples.tutorials.mnist import input_data
 
@@ -19,7 +19,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 DATA_DIR = sys.argv[1]
 CLASS_NUM = int(sys.argv[2])
 TRAIN_ROUND = int(sys.argv[3])
-# DATA_DIR = '/root/data/withip/10class/BenignFlowAllLayers'
+# DATA_DIR = '/root/input_data/withip/10class/BenignFlowAllLayers'
 # CLASS_NUM = 10
 # TRAIN_ROUND = 40000
 
@@ -39,7 +39,7 @@ sess = tf.InteractiveSession()
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
-flags.DEFINE_string('data_dir', DATA_DIR, 'Directory for storing data')
+flags.DEFINE_string('data_dir', DATA_DIR, 'Directory for storing input_data')
 
 mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True, num_classes=CLASS_NUM)
 

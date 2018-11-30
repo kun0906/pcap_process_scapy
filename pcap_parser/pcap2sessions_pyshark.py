@@ -18,7 +18,7 @@ def pcap2sessions(pcap_file, output_dir='.\\out'):
             print(pkt)
             key = "udp.stream_index_" + pkt.udp.stream
             if int(pkt.udp.length) != 0:
-                # data = str(pkt.udp.payload)
+                # input_data = str(pkt.udp.payload)
                 data = ''
         else:
             key = 'others'
@@ -39,6 +39,6 @@ def pcap2sessions(pcap_file, output_dir='.\\out'):
 
 
 if __name__ == '__main__':
-    pcap_file = '../1_pcaps_data/aim_chat_3a.pcap'
+    pcap_file = '../pcaps_data/aim_chat_3a.pcap'
     pcap2sessions(pcap_file, output_dir='testbins')
     print('finished')

@@ -1,3 +1,9 @@
+# Requirements:
+    > 1) python3 > 3.6
+    > 2) scapy 
+    > 3) pytorch > 0.41
+    
+
 # Purpose
 
     "Achieve Streams information by scapy".

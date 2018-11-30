@@ -14,7 +14,7 @@
         1) the stream's calculation is not based on TCP 3 handshake, only on five tuple, so there will be problems if multiple TCP streams have the same tuple.
            (If there will exist multiple TCP streams have the same five tuple? )
            In new wireshark version, there will be more complicated to calculate stream.
-        2) it does not perform any proper TCP session reassembly. and out-of-order TCP packets will also cause the data to be store in an out of sequence.
+        2) it does not perform any proper TCP session reassembly. and out-of-order TCP packets will also cause the input_data to be store in an out of sequence.
         3) ICMP do not have port, so it can not be recognized as stream.
 
     References:
@@ -37,17 +37,17 @@
 
 import argparse
 import binascii
-import os
+import functools
 import time
 from collections import OrderedDict
 
 import numpy
 from PIL import Image
-from scapy import packet
-from scapy.all import rdpcap, PcapReader, sniff
+from scapy.all import rdpcap, PcapReader
 from scapy.layers.inet import IP
+
 from .sys_path_export import *  # it is no need to do in IDE environment, however, it must be done in shell/command environment
-import functools
+
 print = functools.partial(print, flush=True)
 
 
@@ -117,12 +117,12 @@ def get_protocol(pkt):
     return prtl
 
 
-def pcap2sessions(input_f, output_dir='../2_sessions_data', layer='L7'):
+def pcap2sessions(input_f, output_dir='../sessions_data', layer='L7'):
     """
 
     :param input_f:
     :param output_dir:
-    :param layer: achieve 'L3-L7' or only 'L7' or 'AllLyers' data
+    :param layer: achieve 'L3-L7' or only 'L7' or 'AllLyers' input_data
             'L3-L7': IP+payload
             'L7': only TCP/UDP's payload
             'AllLyers' includes Ethernet
@@ -163,11 +163,11 @@ def pcap2sessions(input_f, output_dir='../2_sessions_data', layer='L7'):
                 if key_src2dst not in streams_dict.keys():
                     key_src2dst = key_dst2src
                 if layer == 'L3-L7':
-                    streams_dict[key_src2dst] += pkt['IP'].original  # IP Header + IP Payload data
+                    streams_dict[key_src2dst] += pkt['IP'].original  # IP Header + IP Payload input_data
                 elif layer == 'L7':
-                    streams_dict[key_src2dst] += pkt[prtl].payload.original  # only TCP/UDP Payload data
+                    streams_dict[key_src2dst] += pkt[prtl].payload.original  # only TCP/UDP Payload input_data
                 else:  # AllLayers : include Ethernet
-                    streams_dict[key_src2dst] += pkt.original  # Ethernet Header + Ethernet Payload data
+                    streams_dict[key_src2dst] += pkt.original  # Ethernet Header + Ethernet Payload input_data
 
     print('others_pkts = %d' % others_pkts)
     streams_stats_info = {'TCP_streams': 0, 'UDP_streams': 0, 'Others': 0}
@@ -194,12 +194,18 @@ def pcap2sessions(input_f, output_dir='../2_sessions_data', layer='L7'):
 
 
 def pcap2sessions_forward_backward(input_f, output_dir=''):
+    """
+
+    :param input_f:
+    :param output_dir:
+    :return:
+    """
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     file_prefix = os.path.split(input_f)[-1].split('.')[0]
     pkts = rdpcap(input_f)
 
-    # data.stats
+    # input_data.stats
     sess = pkts.sessions()  # session based on direction, that is flow
     others_pkts = 0
     for k, v in sess.items():
@@ -226,6 +232,13 @@ def pcap2sessions_forward_backward(input_f, output_dir=''):
 
 
 def pcap2sessions_dir(input_dir, output_dir, layer='L7'):
+    """
+
+    :param input_dir:
+    :param output_dir:
+    :param layer:
+    :return:
+    """
     for file in os.listdir(input_dir):
         output_file_dir = os.path.join(output_dir, os.path.split(file)[-1].split('.')[0])
         # if not os.path.exists(output_file_dir):
@@ -236,16 +249,27 @@ def pcap2sessions_dir(input_dir, output_dir, layer='L7'):
 
 
 def save_session_to_dict(k='five_tuple', v='pkt', sess_dict=OrderedDict()):
+    """
+
+    :param k:
+    :param v:
+    :param sess_dict:
+    :return:
+    """
+    # TODO: need to be verified again.
     k_src2dst = k
     # swap src and dst
     tmp_lst = k.split('-')
     k_dst2src = tmp_lst[1] + '-' + tmp_lst[0] + '-' + tmp_lst[-1]
     if k_src2dst not in sess_dict.keys() and k_dst2src not in sess_dict.keys():
         sess_dict[k] = []
-    if k_src2dst in sess_dict.keys():
-        sess_dict[k].append(v)
-    else:
-        sess_dict[k_dst2src].append(v)
+    # if k_src2dst in sess_dict.keys():
+    #     sess_dict[k].append(v)
+    # else:
+    #     sess_dict[k_dst2src].append(v)
+
+    sess_dict[k].append(v)
+
 
 
 def count_protocls(sess_dict):
@@ -333,8 +357,8 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
     # Step 1. read from pcap and do not return a list of packets
     try:
         # pkts_lst = rdpcap(input_f)  # this will read all packets in memory at once, please don't use it directly.
-        # input_f  = '../1_pcaps_data/vpn_hangouts_audio2.pcap'  #
-        # input_f = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/1_pcaps_data/aim_chat_3a.pcap'  #
+        # input_f  = '../pcaps_data/vpn_hangouts_audio2.pcap'  #
+        # input_f = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/pcaps_data/aim_chat_3a.pcap'  #
         myreader = PcapReader(input_f)  # iterator, please use it to process large file, such as more than 4 GB
     except MemoryError as me:
         print('memory error ', me)
@@ -347,7 +371,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
         return -10
 
     # Step 2. achieve all the session in pcap.
-    # data.stats
+    # input_data.stats
     pkts_stats = {'non_Ether_IPv4_pkts': 0, 'non_IPv4_pkts': 0, 'non_TCP_UDP_pkts': 0, 'TCP_pkts': 0,
                   'UDP_pkts': 0}
     cnt = 0
@@ -418,7 +442,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
                 # print('unknown packets type!',pkt.name)
                 pkts_stats['non_Ether_IPv4_pkts'] += 1
 
-    # data.stats
+    # input_data.stats
     # print('%s info is %s' % (input_f, pkts_lst))
     print('packet info:"srcIP:srcPort-dstIP:dstPort-prtcl" + IP_payload')
 
@@ -452,8 +476,8 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
                     else:  # the second SYN + ACK
                         tcp_sess_list.append(pkt)
                     continue
-                # step 2. discern the transmitted data of TCP session
-                if TCP_start_flg:  # TCP data transform.
+                # step 2. discern the transmitted input_data of TCP session
+                if TCP_start_flg:  # TCP input_data transform.
                     for pkt_t in v[i:]:
                         tcp_sess_list.append(pkt_t)
                         F = str(pkt_t.payload.fields['flags'])
@@ -536,8 +560,8 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
     # Step 1. read from pcap and do not return a list of packets
     try:
         # pkts_lst = rdpcap(input_f)  # this will read all packets in memory at once, please don't use it directly.
-        # input_f  = '../1_pcaps_data/vpn_hangouts_audio2.pcap'  #
-        # input_f = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/1_pcaps_data/aim_chat_3a.pcap'  #
+        # input_f  = '../pcaps_data/vpn_hangouts_audio2.pcap'  #
+        # input_f = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/pcaps_data/aim_chat_3a.pcap'  #
         myreader = PcapReader(input_f)  # iterator, please use it to process large file, such as more than 4 GB
     except MemoryError as me:
         print('memory error ', me)
@@ -550,7 +574,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
         return -10
 
     # Step 2. achieve all the session in pcap.
-    # data.stats
+    # input_data.stats
     pkts_stats = {'non_Ether_IPv4_pkts': 0, 'non_IPv4_pkts': 0, 'non_TCP_UDP_pkts': 0, 'TCP_pkts': 0,
                   'UDP_pkts': 0}
     cnt = 0
@@ -621,7 +645,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
                 # print('unknown packets type!',pkt.name)
                 pkts_stats['non_Ether_IPv4_pkts'] += 1
 
-    # data.stats
+    # input_data.stats
     # print('%s info is %s' % (input_f, pkts_lst))
     print('packet info:"srcIP:srcPort-dstIP:dstPort-prtcl" + IP_payload')
 
@@ -653,8 +677,8 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
                     else:  # the second SYN + ACK
                         tcp_sess_list.append(pkt)
                     continue
-                # step 2. discern the transmitted data of TCP session
-                if TCP_start_flg:  # TCP data transform.
+                # step 2. discern the transmitted input_data of TCP session
+                if TCP_start_flg:  # TCP input_data transform.
                     for pkt_t in v[i:]:
                         tcp_sess_list.append(pkt_t)
                         F = str(pkt_t.payload.fields['flags'])
@@ -764,7 +788,7 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
 def parse_params():
     parser = argparse.ArgumentParser(prog='pcap2sessions')
     parser.add_argument('-i', '--input_dir', type=str, dest='input_dir', help='directroy includes *.pcaps or *.pcapngs',
-                        default='../1_pcaps_data', required=True)  # '-i' short name, '--input_dir' full name
+                        default='../pcaps_data', required=True)  # '-i' short name, '--input_dir' full name
     parser.add_argument('-o', '--out_file', dest='out_file', help="the print information of this scripts to out_file",
                         default='./log.txt')
     args = vars(parser.parse_args())
@@ -773,11 +797,11 @@ def parse_params():
 
 
 if __name__ == '__main__':
-    # input_f = '../1_pcaps_data/UDP.pcap'
-    # input_f = '../1_pcaps_data/aim_chat_3a.pcap'
+    # input_f = '../pcaps_data/UDP.pcap'
+    # input_f = '../pcaps_data/aim_chat_3a.pcap'
     # pcap2sessions_statistic(input_f)
 
-    input_dir = '../1_pcaps_data'
+    input_dir = '../pcaps_data'
     args = parse_params()
     print(args)
     achieve_stats_info_for_dir(input_dir=args['input_dir'], out_file=args['out_file'])
@@ -785,6 +809,6 @@ if __name__ == '__main__':
     # pcap2sessions(input_f)
     # pcap2flows(input_f)
 
-    # input_dir = '../1_pcaps_data/VPN-Hangout'
-    # output_dir= '../2_sessions_data'
+    # input_dir = '../pcaps_data/VPN-Hangout'
+    # output_dir= '../sessions_data'
     # pcap2sessions_dir(input_dir,output_dir,layer='L7')

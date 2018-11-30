@@ -5,7 +5,7 @@ from scapy.utils import PcapReader
 def pcap2_parser(input_f):
     try:
         # pkts_lst = rdpcap(input_f)  # this will read all packets in memory at once, please don't use it directly.
-        #  input_f  = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/1_pcaps_data/vpn_hangouts_audio2.pcap'  #
+        #  input_f  = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/pcaps_data/vpn_hangouts_audio2.pcap'  #
         myreader = PcapReader(input_f)  # iterator, please use it to process large file, such as more than 4 GB
     except MemoryError as me:
         print('memory error ', me)
@@ -18,7 +18,7 @@ def pcap2_parser(input_f):
         return -10
 
         # Step 2. achieve all the session in pcap.
-        # data.stats
+        # input_data.stats
     pkts_stats = {'non_Ether_IPv4_pkts': 0, 'non_IPv4_pkts': 0, 'non_TCP_UDP_pkts': 0, 'TCP_pkts': 0,
                   'UDP_pkts': 0}
     cnt = 0

@@ -41,5 +41,5 @@ def split_train_test(input_dir, output_dir='./2_split_train_test', train_percent
 
 
 if __name__ == '__main__':
-    input_dir = '../2_sessions_data'
+    input_dir = '../sessions_data'
     split_train_test(input_dir, output_dir='../2_split_train_test', train_percent=0.7)

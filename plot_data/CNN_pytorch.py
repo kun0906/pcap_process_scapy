@@ -13,7 +13,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader
 
-from _5_plot.divide_categories import divide_categories
+from plot_data.divide_categories import divide_categories
 
 random_seed = 42
 np.random.seed(random_seed)
@@ -55,8 +55,8 @@ class TrafficDataset(Dataset):
         return len(self.y)
 
     def __getitem__(self, idx):
-        # image = torch.Tensor(self.data['images'][idx])
-        # label = torch.Tensor(self.data['labels'][idx])
+        # image = torch.Tensor(self.input_data['images'][idx])
+        # label = torch.Tensor(self.input_data['labels'][idx])
         image = torch.Tensor(self.X[idx])
         # label = torch.Tensor(self.y[idx])
         label = torch.Tensor([self.y[idx]])
@@ -77,7 +77,7 @@ def split_train_test_pytorch(dataset, test_size=0.2, shuffle_flg=True):
     :return:
     """
     from torch.utils.data.sampler import SubsetRandomSampler
-    # Creating data indices for training and testing splits:
+    # Creating input_data indices for training and testing splits:
     dataset_size = len(dataset)
     indices = list(range(dataset_size))  # [0,1,2,..]
     split = int(np.floor(test_size * dataset_size))  # return the floor value
@@ -86,7 +86,7 @@ def split_train_test_pytorch(dataset, test_size=0.2, shuffle_flg=True):
         np.random.shuffle(indices)
     train_indices, test_indices = indices[split:], indices[:split]
 
-    # Creating PT data samplers and loaders:
+    # Creating PT input_data samplers and loaders:
     train_sampler = SubsetRandomSampler(train_indices)
     test_sampler = SubsetRandomSampler(test_indices)
 
@@ -180,7 +180,7 @@ class SimpleCNN(torch.nn.Module):
                 self.optimizer.step()
 
                 train_loss_tmp += train_loss.data.item()
-                print(f"i={idx}, loss_size:{train_loss}")
+            print(f"{epoch}/{self.n_epochs}, loss_size:{train_loss_tmp}")
 
             # # evalute on the validation set after each epoch.
             train_loss_tmp, train_acc_tmp = self.evaluate(train_set, name='train_set')

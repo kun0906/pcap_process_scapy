@@ -70,7 +70,7 @@ for name in Names:
     else:
         raise ValueError('Image exceeds maximum size: 256x256 pixels');
 
-    header[3] = 3  # Changing MSB for image data (0x00000803)
+    header[3] = 3  # Changing MSB for image input_data (0x00000803)
     data_image = header + data_image
     output_file = open(name[1] + '-images-idx3-ubyte', 'wb')
     data_image.tofile(output_file)

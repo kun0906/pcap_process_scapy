@@ -9,7 +9,7 @@ r"""
         2018/11/14
 
     tshark -z
-        tshark -r ../1_pcaps_data/aim_chat_3a.pcap  -z io
+        tshark -r ../pcaps_data/aim_chat_3a.pcap  -z io
         tshark: Invalid -z argument "io"; it must be one of:
      afp,srt
      ancp,tree
@@ -242,7 +242,7 @@ def port_statistic(in_dir):
 def save_data(data_lst, out_file='./out.txt'):
     with open(out_file, 'w')as out_hdl:
         for idx, file_name, data in data_lst:
-            line = f'{idx}/{len(data_lst)} {file_name}\n{data}\n'
+            line = f'{idx}/{len(data_lst)} {file_name}\n{input_data}\n'
             out_hdl.write(line)
 
 
@@ -305,8 +305,8 @@ def all_stat(data_lst, out_file='./out.txt', ptype='ip_stat'):
 
 
 if __name__ == '__main__':
-    in_dir = '../1_pcaps_data/aim_chat_3a.pcap'
-    in_dir = '../1_pcaps_data'
+    in_dir = '../pcaps_data/aim_chat_3a.pcap'
+    in_dir = '../pcaps_data'
     # results = protocol_statistic(in_dir)
     # # save_data(results,out_file='protocol_stat.txt')
     # prtl_stat = all_stat(results, out_file='protocol_stat_summary.txt', ptype='prtl_stat')
