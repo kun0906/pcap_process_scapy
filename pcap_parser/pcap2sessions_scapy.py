@@ -367,7 +367,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
     try:
         # pkts_lst = rdpcap(input_f)  # this will read all packets in memory at once, please don't use it directly.
         # input_f  = '../pcaps_data/vpn_hangouts_audio2.pcap'  #
-        # input_f = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/pcaps_data/aim_chat_3a.pcap'  #
+        # input_f = '/home/kun/PycharmProjects/pcap_process_scapy/pcaps_data/aim_chat_3a.pcap'  #
         myreader = PcapReader(input_f)  # iterator, please use it to process large file, such as more than 4 GB
     except MemoryError as me:
         print('memory error ', me)
@@ -573,7 +573,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
     try:
         # pkts_lst = rdpcap(input_f)  # this will read all packets in memory at once, please don't use it directly.
         # input_f  = '../pcaps_data/vpn_hangouts_audio2.pcap'  #
-        # input_f = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/pcaps_data/aim_chat_3a.pcap'  #
+        # input_f = '/home/kun/PycharmProjects/pcap_process_scapy/pcaps_data/aim_chat_3a.pcap'  #
         myreader = PcapReader(input_f)  # iterator, please use it to process large file, such as more than 4 GB
     except MemoryError as me:
         print('memory error ', me)
