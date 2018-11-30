@@ -1,10 +1,22 @@
 # -*- coding:utf-8 -*-
+"""
+    Purpose:
+        pcaps process
+"""
+
+
 import os
 
 import pyshark
 
 
 def pcap2sessions(pcap_file, output_dir='.\\out'):
+    """
+
+    :param pcap_file:
+    :param output_dir:
+    :return:
+    """
     cap = pyshark.FileCapture(pcap_file)
     sess_dict = {}
     for pkt in cap:

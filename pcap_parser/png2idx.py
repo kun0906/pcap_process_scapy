@@ -1,3 +1,10 @@
+# -*- coding:utf-8 -*-
+"""
+    Purpose:
+        image process
+"""
+
+
 import os
 from array import *
 
@@ -5,6 +12,12 @@ from PIL import Image
 
 
 def png2idx(input_dir='../2_flows_data', output_dir='../2_flows_train/train'):
+    """
+
+    :param input_dir:
+    :param output_dir:
+    :return:
+    """
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     name = [input_dir, output_dir]

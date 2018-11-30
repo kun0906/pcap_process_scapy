@@ -1,3 +1,8 @@
+# -*- coding:utf-8 -*-
+"""
+    Purpose:
+        log
+"""
 
 
 from ast import literal_eval
@@ -5,6 +10,11 @@ from ast import literal_eval
 python_dict = literal_eval("{'a': 1}")
 
 def parse_result_log(input_f='.txt'):
+    """
+
+    :param input_f:
+    :return:
+    """
 
     all_sess_dict={'TCP':0, 'UDP':0}
     full_sess_dict={'TCP':0, 'UDP':0}
@@ -42,7 +52,11 @@ def parse_result_log(input_f='.txt'):
     print('full_sess_dict', full_sess_dict)
 
 def calculate_sessions_size(input_f):
+    """
 
+    :param input_f:
+    :return:
+    """
     with open(input_f,'r') as in_f:
         line = in_f.readline()
         while line:

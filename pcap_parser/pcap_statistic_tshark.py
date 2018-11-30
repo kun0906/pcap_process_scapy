@@ -161,6 +161,11 @@ from collections import Counter
 
 
 def ip_statistic(in_dir):
+    """
+
+    :param in_dir:
+    :return:
+    """
     results = []
     if os.path.isdir(in_dir):
         files_lst = sorted(os.listdir(in_dir))
@@ -189,6 +194,11 @@ def ip_statistic(in_dir):
 
 
 def protocol_statistic(in_dir):
+    """
+
+    :param in_dir:
+    :return:
+    """
     results = []
     if os.path.isdir(in_dir):
         files_lst = sorted(os.listdir(in_dir))
@@ -214,6 +224,11 @@ def protocol_statistic(in_dir):
 
 
 def port_statistic(in_dir):
+    """
+
+    :param in_dir:
+    :return:
+    """
     results = []
     if os.path.isdir(in_dir):
         files_lst = sorted(os.listdir(in_dir))
@@ -240,6 +255,12 @@ def port_statistic(in_dir):
     return results
 
 def save_data(data_lst, out_file='./out.txt'):
+    """
+
+    :param data_lst:
+    :param out_file:
+    :return:
+    """
     with open(out_file, 'w')as out_hdl:
         for idx, file_name, data in data_lst:
             line = f'{idx}/{len(data_lst)} {file_name}\n{input_data}\n'
@@ -247,6 +268,11 @@ def save_data(data_lst, out_file='./out.txt'):
 
 
 def get_first_col(data):
+    """
+
+    :param data:
+    :return:
+    """
     res_lst = []
     data_lst = data.split('\n')
     for line in data_lst:
@@ -259,6 +285,11 @@ def get_first_col(data):
     return res_lst
 
 def port_save(data):
+    """
+
+    :param data:
+    :return:
+    """
     line_arr = data.split()
     # arr = list(map(lambda x, x.split(','), line_arr))
     lst = []
@@ -277,6 +308,13 @@ def port_save(data):
     return [line]
 
 def all_stat(data_lst, out_file='./out.txt', ptype='ip_stat'):
+    """
+
+    :param data_lst:
+    :param out_file:
+    :param ptype:
+    :return:
+    """
     res_lst = []
     with open(out_file, 'w')as out_hdl:
         for idx, file_name, data in data_lst:

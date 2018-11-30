@@ -21,6 +21,11 @@ torch.manual_seed(random_seed)
 
 
 def load_data(input_dir=''):
+    """
+
+    :param input_dir:
+    :return:
+    """
     data_dict = {'images': [], 'labels': []}
     for sub_folder in sorted(os.listdir(input_dir), key=lambda x: x.lower()):
         label = int(sub_folder.split(':')[0]) - 1  # label from 0, 1, 2,
@@ -100,18 +105,34 @@ def split_train_test_pytorch(dataset, test_size=0.2, shuffle_flg=True):
 
 
 def split_train_test(X, y, test_size=0.2, shuffle_flg=True):
+    """
+
+    :param X:
+    :param y:
+    :param test_size:
+    :param shuffle_flg:
+    :return:
+    """
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, shuffle=shuffle_flg)
 
     return (X_train, y_train), (X_test, y_test)
 
 
 class Shape(nn.Module):
+    """
+
+    """
     def __init__(self, in_dim, out_dim=10, idx_layer='', ):
         super(Shape, self).__init__()
         self.idx_layer = idx_layer
         self.out_dim = out_dim
 
     def forward(self, x):
+        """
+
+        :param x:
+        :return:
+        """
         # Do your print / debug stuff here
         # print('print_%sth_layer (batch_size x out_dim)=%s' % (self.idx_layer, x.shape))
         x = x.view(-1, 1, self.out_dim)
@@ -119,6 +140,9 @@ class Shape(nn.Module):
 
 
 class SimpleCNN(torch.nn.Module):
+    """
+
+    """
 
     def __init__(self, n_epochs=10, n_classes=10):
         super(SimpleCNN, self).__init__()
@@ -144,6 +168,11 @@ class SimpleCNN(torch.nn.Module):
         self.optimizer = torch.optim.SGD(self.net.parameters(), lr=0.0001, momentum=0.9)
 
     def forward(self, x):
+        """
+
+        :param x:
+        :return:
+        """
         x = self.net(x)
 
         return x
@@ -241,6 +270,11 @@ class SimpleCNN(torch.nn.Module):
 
 
 def plot_data(stats_dict):
+    """
+
+    :param stats_dict:
+    :return:
+    """
     import matplotlib.pyplot as plt
     # plt.plot(stats_dict['train_acc'],'-g')
     # plt.plot(stats_dict['test_acc'],'*r')
@@ -252,6 +286,11 @@ def plot_data(stats_dict):
 
 
 def main(n_epochs=100000):
+    """
+
+    :param n_epochs:
+    :return:
+    """
     output_dir = '../categories'
     if not os.path.exists(output_dir):
         output_dir = divide_categories(input_dir='../images-full_sessions', output_dir=output_dir)

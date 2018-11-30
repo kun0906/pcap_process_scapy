@@ -52,6 +52,13 @@ print = functools.partial(print, flush=True)
 
 
 def save_png(output_name='five_tuple.png', data=b'', width=28):
+    """
+
+    :param output_name:
+    :param data:
+    :param width:
+    :return:
+    """
     hexst = binascii.hexlify(data)
     im_size = width * width  # generated square image
     if im_size > ((len(hexst) // 2) // width) * width:
@@ -104,6 +111,11 @@ def pcap2flows(input_f, output_dir='../2_flows_data'):
 
 
 def get_protocol(pkt):
+    """
+
+    :param pkt:
+    :return:
+    """
     prtl = []
     cnt = 0
     while pkt.name != 'Raw' and pkt.name != 'NoPayload':
@@ -786,6 +798,10 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
 
 
 def parse_params():
+    """
+
+    :return:
+    """
     parser = argparse.ArgumentParser(prog='pcap2sessions')
     parser.add_argument('-i', '--input_dir', type=str, dest='input_dir', help='directroy includes *.pcaps or *.pcapngs',
                         default='../pcaps_data', required=True)  # '-i' short name, '--input_dir' full name

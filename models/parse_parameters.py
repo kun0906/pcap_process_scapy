@@ -1,7 +1,18 @@
+# -*- coding:utf-8 -*-
+"""
+    Purpose:
+        parse params
+"""
+
+
 import argparse
 
 
 def parse_params():
+    """
+
+    :return:
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, dest='config', help='the name of yaml file to set parameter',
                         default='config.yaml')

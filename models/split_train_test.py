@@ -1,9 +1,22 @@
+# -*- coding:utf-8 -*-
+"""
+    Purpose:
+        data process
+"""
+
 import os
 import random
 import shutil
 
 
 def split_train_test(input_dir, output_dir='./2_split_train_test', train_percent=0.7):
+    """
+
+    :param input_dir:
+    :param output_dir:
+    :param train_percent:
+    :return:
+    """
     train_dir = os.path.join(output_dir, 'Train')
     test_dir = os.path.join(output_dir, 'Test')
     # if not os.path.exists(train_dir):

@@ -1,8 +1,19 @@
+# -*- coding:utf-8 -*-
+"""
+    Purpose:
+        pcaps process
+"""
+
 from scapy.layers.inet import IP
 from scapy.utils import PcapReader
 
 
 def pcap2_parser(input_f):
+    """
+
+    :param input_f:
+    :return:
+    """
     try:
         # pkts_lst = rdpcap(input_f)  # this will read all packets in memory at once, please don't use it directly.
         #  input_f  = '/home/kun/PycharmProjects/Pcap2Sessions_Scapy/pcaps_data/vpn_hangouts_audio2.pcap'  #
