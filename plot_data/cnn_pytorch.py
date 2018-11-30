@@ -293,7 +293,7 @@ def main(n_epochs=100000):
     """
     output_dir = '../categories'
     if not os.path.exists(output_dir):
-        output_dir = divide_categories(input_dir='../images-full_sessions', output_dir=output_dir)
+        output_dir = divide_categories(input_dir='../output_data/images-full_sessions', output_dir=output_dir)
 
     dataset_dict = load_data(output_dir)
     train_set, test_set = split_train_test(dataset_dict['images'], dataset_dict['labels'], test_size=0.3,
