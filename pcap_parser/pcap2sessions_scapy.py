@@ -283,7 +283,6 @@ def save_session_to_dict(k='five_tuple', v='pkt', sess_dict=OrderedDict()):
     sess_dict[k].append(v)
 
 
-
 def count_protocls(sess_dict):
     """
         get TCP and UDP distribution
@@ -325,8 +324,6 @@ def count_sess_size(sess_dict):
     return res_dict
 
 
-
-
 def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
     """
         achieve the statistic of full sessions in pcap after removing uncompleted TCP sessions
@@ -365,7 +362,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
     :return:
     """
     st = time.time()
-    print('process ... \'%s\'' % input_f,flush=True)
+    print('process ... \'%s\'' % input_f, flush=True)
     # Step 1. read from pcap and do not return a list of packets
     try:
         # pkts_lst = rdpcap(input_f)  # this will read all packets in memory at once, please don't use it directly.
@@ -395,7 +392,9 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
         if pkt is None:
             break
         if max_pkts_cnt >= 30000:
-            print('\'%s\' includes more than %d packets and in this time just process the first %d packets. Please split it firstly and do again.' % (input_f, max_pkts_cnt,max_pkts_cnt))
+            print(
+                '\'%s\' includes more than %d packets and in this time just process the first %d packets. Please split it firstly and do again.' % (
+                    input_f, max_pkts_cnt, max_pkts_cnt))
             break
         max_pkts_cnt += 1
         # step 1. parse "Ethernet" firstly
@@ -413,7 +412,8 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
                         pkt.payload.payload.sport) + '-' + pkt.payload.dst + ':' + str(
                         pkt.payload.payload.dport) + '-' + pkt.payload.payload.name.upper()
                     # save_session_to_dict(k=five_tuple, v=pkt,sess_dict=sess_dict)
-                    save_session_to_dict(k=five_tuple, v=pkt.payload, sess_dict=sess_dict)  # only save Ethernet payload to sess_dict
+                    save_session_to_dict(k=five_tuple, v=pkt.payload,
+                                         sess_dict=sess_dict)  # only save Ethernet payload to sess_dict
                     cnt += 1
                     # pkts_lst.append(pkt.payload)  # only include "IPv4+IPv4_payload"
                     if pkt.payload.payload.name.upper() == "TCP":
@@ -429,7 +429,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
             pkt = IP(pkt)  # without ethernet header,  then try to parse it as (IP,IPv4)
             if first_print_flg:
                 first_print_flg = False
-                print('\'%s\' encapsulated by "IP Header" directly, without "Ethernet Header"'%input_f)
+                print('\'%s\' encapsulated by "IP Header" directly, without "Ethernet Header"' % input_f)
             if pkt.name.upper() in ['IP', 'IPV4']:
                 if pkt.payload.name.upper() in ["TCP", "UDP"]:
                     if cnt == 0:
@@ -460,7 +460,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
 
     # Step 3. achieve all full session in sess_dict.
     full_sess_dict = OrderedDict()
-    for k, v in sess_dict.items():   # all pkts in sess_dict without Ethernet headers and tails
+    for k, v in sess_dict.items():  # all pkts in sess_dict without Ethernet headers and tails
         prtl = k.split('-')[-1]
         if prtl == "TCP":
             """
@@ -484,12 +484,12 @@ def pcap2sessions_statistic_with_pcapreader_scapy_improved(input_f):
                         # if flags[S] == "SYN":
                         TCP_start_flg = True
                         tcp_sess_list.append(pkt)
-                        continue    # cannot ignore
+                        continue  # cannot ignore
                     else:  # the second SYN + ACK
                         tcp_sess_list.append(pkt)
                     continue
                 # step 2. discern the transmitted input_data of TCP session
-                if TCP_start_flg:  # TCP input_data transform.
+                if TCP_start_flg:  # TCP input_data transform.    # TODO: there will be issue, please modify again.
                     for pkt_t in v[i:]:
                         tcp_sess_list.append(pkt_t)
                         F = str(pkt_t.payload.fields['flags'])
@@ -568,7 +568,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
     :return:
     """
     st = time.time()
-    print('process ... \'%s\'' % input_f,flush=True)
+    print('process ... \'%s\'' % input_f, flush=True)
     # Step 1. read from pcap and do not return a list of packets
     try:
         # pkts_lst = rdpcap(input_f)  # this will read all packets in memory at once, please don't use it directly.
@@ -598,7 +598,9 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
         if pkt is None:
             break
         if max_pkts_cnt >= 1000:
-            print('\'%s\' includes more than %d packets and in this time just process the first %d packets. Please split it firstly and do again.' % (input_f, max_pkts_cnt,max_pkts_cnt))
+            print(
+                '\'%s\' includes more than %d packets and in this time just process the first %d packets. Please split it firstly and do again.' % (
+                    input_f, max_pkts_cnt, max_pkts_cnt))
             break
         max_pkts_cnt += 1
         # step 1. parse "Ethernet" firstly
@@ -616,7 +618,8 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
                         pkt.payload.payload.sport) + '-' + pkt.payload.dst + ':' + str(
                         pkt.payload.payload.dport) + '-' + pkt.payload.payload.name.upper()
                     # save_session_to_dict(k=five_tuple, v=pkt,sess_dict=sess_dict)
-                    save_session_to_dict(k=five_tuple, v=pkt.payload, sess_dict=sess_dict)  # only save Ethernet payload to sess_dict
+                    save_session_to_dict(k=five_tuple, v=pkt.payload,
+                                         sess_dict=sess_dict)  # only save Ethernet payload to sess_dict
                     cnt += 1
                     # pkts_lst.append(pkt.payload)  # only include "IPv4+IPv4_payload"
                     if pkt.payload.payload.name.upper() == "TCP":
@@ -632,7 +635,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
             pkt = IP(pkt)  # without ethernet header,  then try to parse it as (IP,IPv4)
             if first_print_flg:
                 first_print_flg = False
-                print('\'%s\' encapsulated by "IP Header" directly, without "Ethernet Header"'%input_f)
+                print('\'%s\' encapsulated by "IP Header" directly, without "Ethernet Header"' % input_f)
             if pkt.name.upper() in ['IP', 'IPV4']:
                 if pkt.payload.name.upper() in ["TCP", "UDP"]:
                     if cnt == 0:
@@ -663,7 +666,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
 
     # Step 3. achieve all full session in sess_dict.
     full_sess_dict = {}
-    for k, v in sess_dict.items():   # all pkts in sess_dict without Ethernet headers and tails
+    for k, v in sess_dict.items():  # all pkts in sess_dict without Ethernet headers and tails
         prtl = k.split('-')[-1]
         if prtl == "TCP":
             """
@@ -685,7 +688,7 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
                         # if flags[S] == "SYN":
                         TCP_start_flg = True
                         tcp_sess_list.append(pkt)
-                        continue    # cannot ignore
+                        continue  # cannot ignore
                     else:  # the second SYN + ACK
                         tcp_sess_list.append(pkt)
                     continue
@@ -732,7 +735,6 @@ def pcap2sessions_statistic_with_pcapreader_scapy(input_f):
     return all_stats_dict
 
 
-
 def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
     """
 
@@ -755,7 +757,7 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
     # all_stats_dict['pkts_stats']['non_Ether_IPv4_pkts'] =0
     file_lst = os.listdir(input_dir)
     #
-    #os.listdir(path)
+    # os.listdir(path)
     # Return a list containing the names of the entries in the directory given by path. The list is in arbitrary order.
     # It does not include the special entries '.' and '..' even if they are present in the directory.
     # Order cannot be relied upon and is an artifact of the filesystem.
@@ -766,7 +768,7 @@ def achieve_stats_info_for_dir(input_dir, out_file='./log.txt'):
         for file in file_lst:
             st_tmp = time.time()
             stats_info = pcap2sessions_statistic_with_pcapreader_scapy(os.path.join(input_dir, file))
-            print('%d/%d => %s takes %.2f(s)\n' % (i, len(file_lst), file, time.time() - st_tmp),flush=True)
+            print('%d/%d => %s takes %.2f(s)\n' % (i, len(file_lst), file, time.time() - st_tmp), flush=True)
             line_str = '%d/%d => %s takes %.2f(s) => ' % (
                 i, len(file_lst), file, time.time() - st_tmp) + '%s\n' % stats_info
             out.write(line_str)
